@@ -2,6 +2,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../supabase';
+import { compressImage } from '../../../../utils/imageCompressor';
 import { Database, ChevronLeft, Save, Map, Hotel, Utensils, Calendar, UploadCloud, ShieldAlert } from 'lucide-react';
 
 export default function EditKnowledgeBase({ params }) {
@@ -32,12 +33,14 @@ export default function EditKnowledgeBase({ params }) {
 
     setUploadingImage(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      // Compress the image before uploading
+      const compressedFile = await compressImage(file);
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from('cms-media')
-        .upload(fileName, file);
+        .upload(fileName, compressedFile);
 
       if (error) {
         alert("Gagal mengunggah gambar. Pastikan bucket 'cms-media' sudah dibuat dan public di Supabase.\n" + error.message);
