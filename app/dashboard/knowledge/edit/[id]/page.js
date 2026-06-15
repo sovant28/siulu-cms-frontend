@@ -68,6 +68,8 @@ export default function EditKnowledgeBase({ params }) {
   const [destHours, setDestHours] = useState('');
   const [destTicketPrice, setDestTicketPrice] = useState('');
   const [destTips, setDestTips] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [instagramUrl, setInstagramUrl] = useState('');
   const [destSubCategory, setDestSubCategory] = useState('alam');
   const [destCategorySelection, setDestCategorySelection] = useState('alam');
 
@@ -209,6 +211,8 @@ export default function EditKnowledgeBase({ params }) {
                 setDestHours(jamOp);
                 setDestTicketPrice(biayaInfo.harga_tiket || '');
                 setDestTips(dest.aturan_tips || '');
+                setYoutubeUrl(dest.youtube_url || '');
+                setInstagramUrl(dest.instagram_url || '');
                 setDestSubCategory(biayaInfo.sub_kategori || 'alam');
                 
                 const subCat = biayaInfo.sub_kategori || 'lainnya';
@@ -319,6 +323,8 @@ export default function EditKnowledgeBase({ params }) {
       fitur_fasilitas: facilitiesList,
       aturan_tips: finalTips,
       kontak_info: destContact || null,
+      youtube_url: entityType === 'destinasi' && youtubeUrl ? youtubeUrl.trim() : null,
+      instagram_url: entityType === 'destinasi' && instagramUrl ? instagramUrl.trim() : null,
       is_featured: entityType === 'event' ? eventIsFeatured : false
     };
 
@@ -576,10 +582,22 @@ export default function EditKnowledgeBase({ params }) {
           )}
 
           {entityType === 'destinasi' && (
-            <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Aturan & Tips Berkunjung</label>
-              <input type="text" value={destTips} onChange={(e) => setDestTips(e.target.value)} placeholder="Berpakaian sopan, bawa uang tunai..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
-            </div>
+            <>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Aturan & Tips Berkunjung</label>
+                <input type="text" value={destTips} onChange={(e) => setDestTips(e.target.value)} placeholder="Berpakaian sopan, bawa uang tunai..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Link Embed YouTube (Opsional)</label>
+                  <input type="text" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Link Embed Instagram (Opsional)</label>
+                  <input type="text" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/p/.../embed/" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                </div>
+              </div>
+            </>
           )}
 
           {entityType === 'event' && (
