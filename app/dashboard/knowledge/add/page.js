@@ -15,8 +15,38 @@ function AddKnowledgeBaseForm() {
   // Form Type Selection
   const [entityType, setEntityType] = useState('destinasi'); // destinasi, hotel, restoran, event
 
+  const typeParam = searchParams.get('type');
+  const hasTypeParam = !!typeParam;
+
+  const getBackPath = () => {
+    if (typeParam === 'hotel') return '/dashboard/hotel';
+    if (typeParam === 'restoran') return '/dashboard/resto';
+    if (typeParam === 'kuliner') return '/dashboard/kuliner';
+    if (typeParam === 'event') return '/dashboard/event';
+    if (typeParam === 'darurat') return '/dashboard/info';
+    return '/dashboard/destinasi';
+  };
+
+  const getCategoryDetails = () => {
+    if (typeParam === 'hotel') {
+      return { label: 'Akomodasi / Hotel', bg: 'bg-blue-50 text-blue-700 border-blue-200/80' };
+    }
+    if (typeParam === 'restoran') {
+      return { label: 'Restoran & Cafe', bg: 'bg-amber-50 text-amber-700 border-amber-200/80' };
+    }
+    if (typeParam === 'kuliner') {
+      return { label: 'Kuliner Tradisional', bg: 'bg-orange-50 text-orange-700 border-orange-200/80' };
+    }
+    if (typeParam === 'event') {
+      return { label: 'Event & Festival', bg: 'bg-purple-50 text-purple-700 border-purple-200/80' };
+    }
+    if (typeParam === 'darurat') {
+      return { label: 'Info Darurat & Umum', bg: 'bg-red-50 text-red-700 border-red-200/80' };
+    }
+    return { label: 'Tempat Wisata', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80' };
+  };
+
   useEffect(() => {
-    const typeParam = searchParams.get('type');
     if (typeParam) {
       if (typeParam === 'kuliner') {
         setEntityType('restoran');
@@ -24,7 +54,7 @@ function AddKnowledgeBaseForm() {
         setEntityType(typeParam);
       }
     }
-  }, [searchParams]);
+  }, [typeParam]);
 
   // Common Form State
   const [destId, setDestId] = useState('');
@@ -138,8 +168,8 @@ function AddKnowledgeBaseForm() {
     if (selectedType === 'hotel') {
       prefix = 'HTL';
     } else if (selectedType === 'restoran') {
-      const typeParam = searchParams.get('type');
-      prefix = typeParam === 'kuliner' ? 'FOOD' : 'CUL';
+      const typeParamVal = searchParams.get('type');
+      prefix = typeParamVal === 'kuliner' ? 'FOOD' : 'CUL';
     } else if (selectedType === 'event') {
       prefix = 'EVT';
     } else if (selectedType === 'darurat') {
@@ -344,47 +374,62 @@ function AddKnowledgeBaseForm() {
     <div className="flex flex-col w-full font-sans pb-10 space-y-6">
       <div className="flex items-center space-x-4">
         <button 
-          onClick={() => router.push('/dashboard/knowledge')}
+          type="button"
+          onClick={() => router.push(getBackPath())}
           className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-500 hover:text-slate-800 transition"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">Tambah Pengetahuan AI</h2>
-          <p className="text-xs font-medium text-slate-500">Pilih jenis entitas dan lengkapi datanya.</p>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Tambah Pengetahuan AI</h2>
+            {hasTypeParam && (
+              <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md border ${getCategoryDetails().bg} ${getCategoryDetails().border}`}>
+                {getCategoryDetails().label}
+              </span>
+            )}
+          </div>
+          <p className="text-xs font-medium text-slate-500">
+            {hasTypeParam 
+              ? `Lengkapi detail data untuk kategori ${getCategoryDetails().label.toLowerCase()}.`
+              : 'Pilih jenis entitas dan lengkapi datanya.'
+            }
+          </p>
         </div>
       </div>
 
-      {/* Entity Selector */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl">
-        <button type="button" onClick={() => setEntityType('destinasi')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'destinasi' ? 'bg-orange-50 border-[#F35A05] text-[#F35A05] shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-          <Map className="w-6 h-6" />
-          <span className="text-xs font-bold text-center">Tempat Wisata</span>
-        </button>
-        <button type="button" onClick={() => setEntityType('hotel')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'hotel' ? 'bg-blue-50 border-blue-600 text-blue-600 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-          <Hotel className="w-6 h-6" />
-          <span className="text-xs font-bold text-center">Akomodasi / Hotel</span>
-        </button>
-        <button type="button" onClick={() => setEntityType('restoran')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'restoran' ? 'bg-amber-50 border-amber-600 text-amber-600 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-          <Utensils className="w-6 h-6" />
-          <span className="text-xs font-bold text-center">Restoran / Kuliner</span>
-        </button>
-        <button type="button" onClick={() => setEntityType('event')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'event' ? 'bg-purple-50 border-purple-600 text-purple-600 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-          <Calendar className="w-6 h-6" />
-          <span className="text-xs font-bold text-center">Event & Festival</span>
-        </button>
-        <button type="button" onClick={() => setEntityType('darurat')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'darurat' ? 'bg-red-50 border-red-600 text-red-600 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-          <ShieldAlert className="w-6 h-6" />
-          <span className="text-xs font-bold text-center">Info Darurat & Umum</span>
-        </button>
-      </div>
+      {/* Entity Selector (Only render if there is no type parameter in query) */}
+      {!hasTypeParam && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl">
+          <button type="button" onClick={() => setEntityType('destinasi')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'destinasi' ? 'bg-orange-50 border-[#F35A05] text-[#F35A05]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            <Map className="w-6 h-6" />
+            <span className="text-xs font-bold text-center">Tempat Wisata</span>
+          </button>
+          <button type="button" onClick={() => setEntityType('hotel')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'hotel' ? 'bg-blue-50 border-blue-600 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            <Hotel className="w-6 h-6" />
+            <span className="text-xs font-bold text-center">Akomodasi / Hotel</span>
+          </button>
+          <button type="button" onClick={() => setEntityType('restoran')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'restoran' ? 'bg-amber-50 border-amber-600 text-amber-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            <Utensils className="w-6 h-6" />
+            <span className="text-xs font-bold text-center">Restoran / Kuliner</span>
+          </button>
+          <button type="button" onClick={() => setEntityType('event')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'event' ? 'bg-purple-50 border-purple-600 text-purple-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            <Calendar className="w-6 h-6" />
+            <span className="text-xs font-bold text-center">Event & Festival</span>
+          </button>
+          <button type="button" onClick={() => setEntityType('darurat')} className={`p-4 rounded-xl border flex flex-col items-center justify-center space-y-2 transition ${entityType === 'darurat' ? 'bg-red-50 border-red-600 text-red-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+            <ShieldAlert className="w-6 h-6" />
+            <span className="text-xs font-bold text-center">Info Darurat & Umum</span>
+          </button>
+        </div>
+      )}
 
-      <section className="bg-white border border-slate-200 rounded-xl p-8 max-w-4xl shadow-sm">
+      <section className="bg-white border border-slate-200 rounded-xl p-8 max-w-4xl">
         <form onSubmit={handleSave} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center pl-1">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">ID Dokumen (Unik) *</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider">ID Dokumen (Unik) *</label>
                 <button
                   type="button"
                   onClick={() => generateAutoId(entityType, destCategory)}
@@ -406,19 +451,19 @@ function AddKnowledgeBaseForm() {
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Nama {entityType === 'hotel' ? 'Hotel/Akomodasi' : entityType === 'restoran' ? 'Restoran' : entityType === 'event' ? 'Event' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Nama {entityType === 'hotel' ? 'Hotel / Akomodasi' : entityType === 'restoran' ? 'Restoran' : entityType === 'event' ? 'Event' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
               <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Misiliana Hotel' : entityType === 'restoran' ? 'Cafe Aras' : 'event' ? 'Toraja Highland Festival' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Makam Londa'}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Wilayah / Lokasi *</label>
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Wilayah / Lokasi *</label>
               <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Rantepao, Toraja Utara" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
             {entityType === 'destinasi' && (
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Kategori Destinasi (Khas Toraja) *</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kategori Destinasi (Khas Toraja) *</label>
                 <select 
                   value={destCategorySelection} 
                   onChange={(e) => handleCategorySelectionChange(e.target.value)} 
@@ -437,7 +482,7 @@ function AddKnowledgeBaseForm() {
             )}
             {entityType !== 'destinasi' && (
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Kontak Info / Telepon</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kontak Info / Telepon</label>
                 <input type="text" value={destContact} onChange={(e) => setDestContact(e.target.value)} placeholder="0812-3456-7890 / @instagram" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
               </div>
             )}
@@ -449,11 +494,11 @@ function AddKnowledgeBaseForm() {
           {entityType === 'destinasi' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Jam Operasional</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Jam Operasional</label>
                 <input type="text" value={destHours} onChange={(e) => setDestHours(e.target.value)} placeholder="Setiap hari 08:00 - 17:00" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Informasi Biaya / Tiket Masuk</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Informasi Biaya / Tiket Masuk</label>
                 <input type="text" value={destTicketPrice} onChange={(e) => setDestTicketPrice(e.target.value)} placeholder="Rp 15.000 / orang" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
             </div>
@@ -463,7 +508,7 @@ function AddKnowledgeBaseForm() {
           {entityType === 'hotel' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Rating Bintang</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Rating Bintang</label>
                 <select value={hotelStars} onChange={(e) => setHotelStars(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition">
                   <option value="Boutique/Villa">Boutique / Villa</option>
                   <option value="1">1 Bintang</option>
@@ -474,15 +519,15 @@ function AddKnowledgeBaseForm() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Harga Per Malam</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Harga Per Malam</label>
                 <input type="text" value={hotelPrice} onChange={(e) => setHotelPrice(e.target.value)} placeholder="Mulai dari Rp 450.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Check-In</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Check-In</label>
                 <input type="time" value={hotelCheckIn} onChange={(e) => setHotelCheckIn(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Check-Out</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Check-Out</label>
                 <input type="time" value={hotelCheckOut} onChange={(e) => setHotelCheckOut(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
               </div>
             </div>
@@ -492,11 +537,11 @@ function AddKnowledgeBaseForm() {
           {entityType === 'restoran' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-amber-50/50 rounded-xl border border-amber-100">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Jam Buka</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Jam Buka</label>
                 <input type="text" value={restoHours} onChange={(e) => setRestoHours(e.target.value)} placeholder="10:00 - 22:00" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Status Kehalalan</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan</label>
                 <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs">
                   <option value="Halal Certified">Tersertifikasi Halal</option>
                   <option value="Halal Friendly">Halal Friendly (No Pork/Lard)</option>
@@ -504,7 +549,7 @@ function AddKnowledgeBaseForm() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Range Harga (Per Pax)</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Range Harga (Per Pax)</label>
                 <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Rp 25.000 - Rp 100.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
             </div>
@@ -514,23 +559,23 @@ function AddKnowledgeBaseForm() {
           {entityType === 'event' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-purple-50/50 rounded-xl border border-purple-100">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Tanggal Mulai</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tanggal Mulai</label>
                 <input type="date" value={eventStartDate} onChange={(e) => setEventStartDate(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-600 transition" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Tanggal Selesai</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tanggal Selesai</label>
                 <input type="date" value={eventEndDate} onChange={(e) => setEventEndDate(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-600 transition" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Harga Tiket</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Harga Tiket</label>
                 <input type="text" value={eventTicket} onChange={(e) => setEventTicket(e.target.value)} placeholder="Gratis / Rp 50.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-600 transition" />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Penyelenggara</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Penyelenggara</label>
                 <input type="text" value={eventOrganizer} onChange={(e) => setEventOrganizer(e.target.value)} placeholder="Dinas Pariwisata / Swasta" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-600 transition" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Sub Kategori Event</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Sub Kategori Event</label>
                 <select value={eventSubCategory} onChange={(e) => setEventSubCategory(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-600 transition">
                   <option value="budaya">Upacara Adat</option>
                   <option value="religi">Event Religi</option>
@@ -542,7 +587,7 @@ function AddKnowledgeBaseForm() {
 
 
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Deskripsi Lengkap (Materi Utama AI) *</label>
+            <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Deskripsi Lengkap (Materi Utama AI) *</label>
             <textarea 
               required rows={6} value={destDescription} onChange={(e) => setDestDescription(e.target.value)}
               placeholder="Jelaskan secara detail mengenai profil entitas ini agar bot AI dapat memahaminya dan menjawab pertanyaan pengunjung dengan akurat..."
@@ -553,7 +598,7 @@ function AddKnowledgeBaseForm() {
           {entityType !== 'darurat' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">
                   {entityType === 'restoran' ? 'ID Kedai/Restoran Penyedia (Pisahkan Koma)' : 'Fasilitas Tambahan (Pisahkan Koma)'}
                 </label>
                 <input 
@@ -565,7 +610,7 @@ function AddKnowledgeBaseForm() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Koordinat GPS [Lat, Lng]</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
                 <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="-3.1234, 119.8765" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
               </div>
             </div>
@@ -573,7 +618,7 @@ function AddKnowledgeBaseForm() {
 
           {entityType !== 'darurat' && (
             <div className="space-y-2">
-              <label className="flex text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 items-center justify-between">
+              <label className="flex text-[10px] font-black text-slate-500 tracking-wider pl-1 items-center justify-between">
                 <span>URL Gambar / Banner (Opsional)</span>
                 <label className="cursor-pointer text-[#F35A05] hover:text-[#d94200] flex items-center space-x-1 transition">
                   <UploadCloud className="w-3.5 h-3.5" />
@@ -596,16 +641,16 @@ function AddKnowledgeBaseForm() {
           {entityType === 'destinasi' && (
             <>
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Aturan & Tips Berkunjung</label>
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Aturan & Tips Berkunjung</label>
                 <input type="text" value={destTips} onChange={(e) => setDestTips(e.target.value)} placeholder="Berpakaian sopan, bawa uang tunai..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Link Embed YouTube (Opsional)</label>
+                  <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Link Embed YouTube (Opsional)</label>
                   <input type="text" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Link Embed Instagram (Opsional)</label>
+                  <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Link Embed Instagram (Opsional)</label>
                   <input type="text" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://www.instagram.com/p/.../embed/" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
                 </div>
               </div>
@@ -621,7 +666,7 @@ function AddKnowledgeBaseForm() {
                   onChange={(e) => setEventIsFeatured(e.target.checked)} 
                   className="w-4 h-4 text-[#F35A05] border-slate-300 rounded focus:ring-[#F35A05] cursor-pointer" 
                 />
-                <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Tandai sebagai Featured Event (Tampilkan di halaman utama PWA)</span>
+                <span className="text-xs font-black text-slate-700 tracking-wider">Tandai sebagai Featured Event (Tampilkan di Halaman Utama PWA)</span>
               </label>
             </div>
           )}
@@ -629,7 +674,7 @@ function AddKnowledgeBaseForm() {
           <div className="pt-6 border-t border-slate-200">
             <button 
               type="submit" disabled={formLoading}
-              className="px-8 py-3.5 bg-[#F35A05] hover:bg-[#d94200] disabled:opacity-50 text-white font-black rounded-lg text-xs tracking-widest uppercase transition flex items-center justify-center space-x-2"
+              className="px-8 py-3.5 bg-[#F35A05] hover:bg-[#d94200] disabled:opacity-50 text-white font-black rounded-lg text-xs tracking-widest transition flex items-center justify-center space-x-2"
             >
               {formLoading ? (
                 <>
