@@ -24,6 +24,7 @@ export default function EditKnowledgeBase({ params }) {
   const [destFacilities, setDestFacilities] = useState('');
   const [destGps, setDestGps] = useState('');
   const [destImageUrl, setDestImageUrl] = useState('');
+  const [originalBiaya, setOriginalBiaya] = useState({});
   const [formLoading, setFormLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -170,6 +171,7 @@ export default function EditKnowledgeBase({ params }) {
               }
 
               const biayaInfo = typeof dest.informasi_biaya === 'object' ? dest.informasi_biaya : {};
+              setOriginalBiaya(biayaInfo);
               const jamOp = dest.jam_operasional || '';
               
               setDestImageUrl(biayaInfo.image_url || '');
@@ -267,7 +269,7 @@ export default function EditKnowledgeBase({ params }) {
     // Dynamic mapping based on entityType
     let finalCategory = 'alam';
     let finalHours = null;
-    let finalBiaya = { image_url: destImageUrl };
+    let finalBiaya = { ...originalBiaya, image_url: destImageUrl };
     let finalTips = null;
 
     if (entityType === 'destinasi') {
