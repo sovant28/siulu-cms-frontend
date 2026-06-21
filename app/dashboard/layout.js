@@ -29,6 +29,40 @@ export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activePath, setActivePath] = useState(pathname);
+
+  useEffect(() => {
+    const checkActivePath = () => {
+      if (pathname === '/dashboard/knowledge/add') {
+        if (typeof window !== 'undefined') {
+          const search = window.location.search;
+          const params = new URLSearchParams(search);
+          const type = params.get('type');
+          if (type === 'hotel') return '/dashboard/hotel';
+          if (type === 'restoran') return '/dashboard/resto';
+          if (type === 'kuliner') return '/dashboard/kuliner';
+          if (type === 'event') return '/dashboard/event';
+          if (type === 'darurat') return '/dashboard/info';
+        }
+        return '/dashboard/destinasi';
+      }
+      
+      if (pathname.startsWith('/dashboard/knowledge/edit/')) {
+        const id = pathname.split('/').pop() || '';
+        if (id.startsWith('HTL-')) return '/dashboard/hotel';
+        if (id.startsWith('FOOD-')) return '/dashboard/kuliner';
+        if (id.startsWith('CUL-')) return '/dashboard/resto';
+        if (id.startsWith('EVT-')) return '/dashboard/event';
+        if (id.startsWith('EMG-')) return '/dashboard/info';
+        if (id.startsWith('DST-') || id.startsWith('NAT-') || id.startsWith('REL-') || id.startsWith('TRN-')) {
+          return '/dashboard/destinasi';
+        }
+      }
+      return pathname;
+    };
+
+    setActivePath(checkActivePath());
+  }, [pathname]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -223,7 +257,7 @@ export default function DashboardLayout({ children }) {
           <nav className="p-4 space-y-1">
             {filteredMenu.map((item, idx) => {
               const IconComp = item.icon;
-              const isActive = pathname === item.path;
+              const isActive = activePath === item.path;
               return (
                 <Link 
                   key={idx} 
