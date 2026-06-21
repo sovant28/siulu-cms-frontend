@@ -1,18 +1,30 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../../supabase';
 import { compressImage } from '../../../utils/imageCompressor';
 import { Database, ChevronLeft, Save, Map, Hotel, Utensils, Calendar, UploadCloud, ShieldAlert } from 'lucide-react';
 
-export default function AddKnowledgeBase() {
+function AddKnowledgeBaseForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form Type Selection
   const [entityType, setEntityType] = useState('destinasi'); // destinasi, hotel, restoran, event
+
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam) {
+      if (typeParam === 'kuliner') {
+        setEntityType('restoran');
+      } else if (['destinasi', 'hotel', 'restoran', 'event', 'darurat'].includes(typeParam)) {
+        setEntityType(typeParam);
+      }
+    }
+  }, [searchParams]);
 
   // Common Form State
   const [destId, setDestId] = useState('');
@@ -126,7 +138,8 @@ export default function AddKnowledgeBase() {
     if (selectedType === 'hotel') {
       prefix = 'HTL';
     } else if (selectedType === 'restoran') {
-      prefix = 'CUL';
+      const typeParam = searchParams.get('type');
+      prefix = typeParam === 'kuliner' ? 'FOOD' : 'CUL';
     } else if (selectedType === 'event') {
       prefix = 'EVT';
     } else if (selectedType === 'darurat') {
@@ -254,8 +267,10 @@ export default function AddKnowledgeBase() {
     } else if (entityType === 'restoran') {
       finalCategory = 'kuliner';
       finalHours = restoHours;
+      const subJenis = destId.trim().startsWith('FOOD-') ? 'makanan_khas' : 'tempat_makan';
       finalBiaya = {
         ...finalBiaya,
+        "jenis": subJenis,
         "status_halal": restoHalal,
         "range_harga": restoPriceRange
       };
@@ -301,8 +316,16 @@ export default function AddKnowledgeBase() {
       });
 
       if (res.ok) {
+        let redirectPath = '/dashboard/destinasi';
+        if (entityType === 'hotel') redirectPath = '/dashboard/hotel';
+        else if (entityType === 'restoran') {
+          redirectPath = destId.trim().startsWith('FOOD-') ? '/dashboard/kuliner' : '/dashboard/resto';
+        }
+        else if (entityType === 'event') redirectPath = '/dashboard/event';
+        else if (entityType === 'darurat') redirectPath = '/dashboard/info';
+
         alert("Dokumen pengetahuan RAG berhasil disimpan dan diproses AI!");
-        router.push('/dashboard/knowledge');
+        router.push(redirectPath);
       } else {
         const errData = await res.json();
         alert(`Gagal menyimpan: ${errData.detail || 'Error'}`);
@@ -624,5 +647,20 @@ export default function AddKnowledgeBase() {
         </form>
       </section>
     </div>
+  );
+}
+
+export default function AddKnowledgeBase() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Form...</p>
+        </div>
+      </div>
+    }>
+      <AddKnowledgeBaseForm />
+    </Suspense>
   );
 }

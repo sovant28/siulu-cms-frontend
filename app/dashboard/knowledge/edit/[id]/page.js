@@ -250,6 +250,16 @@ export default function EditKnowledgeBase({ params }) {
     initPage();
   }, [unwrappedParams.id, router]);
 
+  const getBackPath = () => {
+    if (entityType === 'hotel') return '/dashboard/hotel';
+    if (entityType === 'restoran') {
+      return destId.startsWith('FOOD-') ? '/dashboard/kuliner' : '/dashboard/resto';
+    }
+    if (entityType === 'event') return '/dashboard/event';
+    if (entityType === 'darurat') return '/dashboard/info';
+    return '/dashboard/destinasi';
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setFormLoading(true);
@@ -340,7 +350,7 @@ export default function EditKnowledgeBase({ params }) {
 
       if (res.ok) {
         alert("Pembaruan dokumen dan re-embedding RAG berhasil!");
-        router.push('/dashboard/knowledge');
+        router.push(getBackPath());
       } else {
         const errData = await res.json();
         alert(`Gagal menyimpan: ${errData.detail || 'Error'}`);
@@ -360,7 +370,7 @@ export default function EditKnowledgeBase({ params }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button 
-            onClick={() => router.push('/dashboard/knowledge')}
+            onClick={() => router.push(getBackPath())}
             className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-500 hover:text-slate-800 transition"
           >
             <ChevronLeft className="w-5 h-5" />

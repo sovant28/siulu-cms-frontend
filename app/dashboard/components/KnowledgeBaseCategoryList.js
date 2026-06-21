@@ -7,21 +7,24 @@ import {
   Edit3, 
   Search, 
   Plus, 
-  Filter,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 
-export default function KnowledgeBaseList() {
+export default function KnowledgeBaseCategoryList({ 
+  title, 
+  description,
+  defaultType, 
+  filterFn 
+}) {
   const router = useRouter();
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(null);
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('semua');
   
-  // Paginasi
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -71,7 +74,7 @@ export default function KnowledgeBaseList() {
       alert("Akses ditolak: Peran Anda tidak diizinkan mengelola pengetahuan RAG!");
       return;
     }
-    if (!confirm("Apakah Anda yakin ingin menghapus data tempat wisata ini beserta representasi vektor embedding-nya?")) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus data ini beserta representasi vektor embedding-nya?")) return;
 
     try {
       const res = await fetch(`${API_URL}/knowledge/destinasi/${id}`, {
@@ -80,10 +83,10 @@ export default function KnowledgeBaseList() {
       });
 
       if (res.ok) {
-        alert("Destinasi dan embeddings RAG sukses dihapus!");
+        alert("Dokumen dan RAG embeddings sukses dihapus!");
         await fetchDestinations();
       } else {
-        alert("Gagal menghapus destinasi.");
+        alert("Gagal menghapus dokumen.");
       }
     } catch (err) {
       console.error(err);
@@ -103,16 +106,19 @@ export default function KnowledgeBaseList() {
     }
   };
 
-  const filteredDestinations = destinations.filter(dest => {
-    const q = searchQuery.toLowerCase();
-    
-    let tabMatch = true;
-    if (activeTab === 'destinasi') tabMatch = dest.kategori === 'alam' || dest.kategori === 'budaya_religi' || dest.kategori === 'transportasi';
-    else if (activeTab === 'hotel') tabMatch = dest.kategori === 'akomodasi';
-    else if (activeTab === 'restoran') tabMatch = dest.kategori === 'kuliner';
-    else if (activeTab === 'event') tabMatch = dest.kategori === 'event';
+  const formatCategoryText = (cat) => {
+    if (!cat) return '';
+    return cat.split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
 
-    return tabMatch && (
+  // Filter based on parent filterFn and search query
+  const categoryFiltered = destinations.filter(filterFn);
+  
+  const finalFiltered = categoryFiltered.filter(dest => {
+    const q = searchQuery.toLowerCase();
+    return (
       dest.id.toLowerCase().includes(q) ||
       dest.nama_tempat.toLowerCase().includes(q) ||
       dest.kategori.toLowerCase().includes(q) ||
@@ -120,8 +126,8 @@ export default function KnowledgeBaseList() {
     );
   });
 
-  const totalPages = Math.ceil(filteredDestinations.length / itemsPerPage) || 1;
-  const paginatedDestinations = filteredDestinations.slice(
+  const totalPages = Math.ceil(finalFiltered.length / itemsPerPage) || 1;
+  const paginatedDestinations = finalFiltered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -135,7 +141,7 @@ export default function KnowledgeBaseList() {
       <div className="flex h-[60vh] w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Basis Pengetahuan...</p>
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Data...</p>
         </div>
       </div>
     );
@@ -145,42 +151,9 @@ export default function KnowledgeBaseList() {
     <div className="flex flex-col w-full font-sans pb-10 space-y-8">
       
       {/* Title */}
-      <div>
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Memori Wisata (RAG)</h2>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center space-x-6 border-b border-slate-200">
-        <button 
-          onClick={() => setActiveTab('semua')}
-          className={`pb-3 font-bold text-sm transition ${activeTab === 'semua' ? 'border-b-2 border-[#F35A05] text-[#F35A05]' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          Semua Dokumen ({destinations.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('destinasi')}
-          className={`pb-3 font-bold text-sm transition ${activeTab === 'destinasi' ? 'border-b-2 border-[#F35A05] text-[#F35A05]' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          Tempat Wisata ({destinations.filter(d => d.kategori === 'alam' || d.kategori === 'budaya_religi' || d.kategori === 'transportasi').length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('hotel')}
-          className={`pb-3 font-bold text-sm transition ${activeTab === 'hotel' ? 'border-b-2 border-[#F35A05] text-[#F35A05]' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          Hotel/Akomodasi ({destinations.filter(d => d.kategori === 'akomodasi').length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('restoran')}
-          className={`pb-3 font-bold text-sm transition ${activeTab === 'restoran' ? 'border-b-2 border-[#F35A05] text-[#F35A05]' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          Restoran/Kuliner ({destinations.filter(d => d.kategori === 'kuliner').length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('event')}
-          className={`pb-3 font-bold text-sm transition ${activeTab === 'event' ? 'border-b-2 border-[#F35A05] text-[#F35A05]' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          Event ({destinations.filter(d => d.kategori === 'event').length})
-        </button>
+      <div className="flex flex-col space-y-1">
+        <h2 className="text-2xl font-black text-slate-800 tracking-tight">{title}</h2>
+        {description && <p className="text-xs font-semibold text-slate-500">{description}</p>}
       </div>
 
       {/* Action Row */}
@@ -192,18 +165,14 @@ export default function KnowledgeBaseList() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari ID, nama tempat, kategori..."
+              placeholder="Cari ID, nama tempat, wilayah..."
               className="w-72 bg-white border border-slate-300 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-800 font-medium placeholder-slate-400 focus:outline-none focus:border-[#F35A05] transition"
             />
           </div>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
-            <Filter className="w-3.5 h-3.5" />
-            <span>Filter</span>
-          </button>
         </div>
         
         <button 
-          onClick={() => router.push('/dashboard/knowledge/add')}
+          onClick={() => router.push(`/dashboard/knowledge/add?type=${defaultType}`)}
           className="flex items-center space-x-2 bg-[#F35A05] hover:bg-[#d94200] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition active:scale-95"
         >
           <Plus className="w-4 h-4" />
@@ -216,7 +185,7 @@ export default function KnowledgeBaseList() {
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="border-b border-slate-200 text-slate-500 font-bold">
-              <th className="pb-3 px-2 font-medium w-[100px]">ID</th>
+              <th className="pb-3 px-2 font-medium w-[120px]">ID</th>
               <th className="pb-3 px-2 font-medium">Nama Tempat</th>
               <th className="pb-3 px-2 font-medium w-[150px]">Kategori</th>
               <th className="pb-3 px-2 font-medium w-[200px]">Wilayah</th>
@@ -242,8 +211,8 @@ export default function KnowledgeBaseList() {
                     </div>
                   </td>
                   <td className="py-4 px-2">
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${getCategoryBadge(dest.kategori)}`}>
-                      {dest.kategori.replace('_', ' ')}
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold ${getCategoryBadge(dest.kategori)}`}>
+                      {formatCategoryText(dest.kategori)}
                     </span>
                   </td>
                   <td className="py-4 px-2 text-slate-500 font-medium">
@@ -267,7 +236,6 @@ export default function KnowledgeBaseList() {
                       </button>
                     </div>
                   </td>
-
                 </tr>
               ))
             )}
@@ -276,10 +244,10 @@ export default function KnowledgeBaseList() {
       </div>
 
       {/* Pagination Bottom Right */}
-      {filteredDestinations.length > 0 && (
+      {finalFiltered.length > 0 && (
         <div className="flex items-center justify-between text-xs text-slate-500 mt-2">
           <div>
-            Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredDestinations.length)} of {filteredDestinations.length}
+            Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, finalFiltered.length)} of {finalFiltered.length}
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1">

@@ -14,7 +14,12 @@ import {
   UserCheck,
   MessageSquare,
   Menu,
-  X
+  X,
+  Map,
+  Hotel,
+  Utensils,
+  Calendar,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
@@ -104,9 +109,44 @@ export default function DashboardLayout({ children }) {
   });
 
   menuItems.push({
-    name: "Memori Wisata (RAG)",
-    path: "/dashboard/knowledge",
+    name: "Tempat Wisata",
+    path: "/dashboard/destinasi",
+    icon: Map,
+    allowed: ["super_admin", "admin_konten"]
+  });
+
+  menuItems.push({
+    name: "Hotel & Akomodasi",
+    path: "/dashboard/hotel",
+    icon: Hotel,
+    allowed: ["super_admin", "admin_konten"]
+  });
+
+  menuItems.push({
+    name: "Restoran & Cafe",
+    path: "/dashboard/resto",
+    icon: Utensils,
+    allowed: ["super_admin", "admin_konten"]
+  });
+
+  menuItems.push({
+    name: "Kuliner Tradisional",
+    path: "/dashboard/kuliner",
     icon: Database,
+    allowed: ["super_admin", "admin_konten"]
+  });
+
+  menuItems.push({
+    name: "Event & Ritual Adat",
+    path: "/dashboard/event",
+    icon: Calendar,
+    allowed: ["super_admin", "admin_konten"]
+  });
+
+  menuItems.push({
+    name: "Informasi & Darurat",
+    path: "/dashboard/info",
+    icon: ShieldAlert,
     allowed: ["super_admin", "admin_konten"]
   });
 
