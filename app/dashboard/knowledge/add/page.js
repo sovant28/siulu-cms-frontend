@@ -530,8 +530,16 @@ export default function AddKnowledgeBase() {
           {entityType !== 'darurat' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Fasilitas Tambahan (Pisahkan Koma)</label>
-                <input type="text" value={destFacilities} onChange={(e) => setDestFacilities(e.target.value)} placeholder="Parkir, Wifi, Kolam Renang" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">
+                  {entityType === 'restoran' ? 'ID Kedai/Restoran Penyedia (Pisahkan Koma)' : 'Fasilitas Tambahan (Pisahkan Koma)'}
+                </label>
+                <input 
+                  type="text" 
+                  value={destFacilities} 
+                  onChange={(e) => setDestFacilities(e.target.value)} 
+                  placeholder={entityType === 'restoran' ? 'Contoh: TOR-ARAS-CAF, TOR-LEMO-CAF' : 'Parkir, Wifi, Kolam Renang'} 
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Koordinat GPS [Lat, Lng]</label>
