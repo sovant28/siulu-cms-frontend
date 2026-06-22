@@ -107,7 +107,7 @@ export default function AddUser() {
         </div>
       </div>
 
-      <div className="max-w-xl bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
+      <div className="max-w-xl bg-white border border-slate-200/80 rounded-xl p-8">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm font-bold leading-normal">
             {error}
@@ -143,6 +143,8 @@ export default function AddUser() {
             >
               <option value="admin_konten">Admin Konten</option>
               <option value="validator">Validator</option>
+              <option value="admin_bot">Admin Bot</option>
+              <option value="analyst">Analyst</option>
               <option value="super_admin">Super-Admin</option>
             </select>
           </div>

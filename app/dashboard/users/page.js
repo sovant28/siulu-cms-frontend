@@ -95,16 +95,20 @@ export default function UsersList() {
       case 'super_admin': return 'Super-Admin';
       case 'admin_konten': return 'Admin Konten';
       case 'validator': return 'Validator';
+      case 'admin_bot': return 'Admin Bot';
+      case 'analyst': return 'Analyst';
       default: return 'Admin';
     }
   };
 
   const getRoleBadgeStyle = (r) => {
     switch (r) {
-      case 'super_admin': return 'bg-orange-50 text-[#F35A05]';
-      case 'admin_konten': return 'bg-sky-50 text-sky-600';
-      case 'validator': return 'bg-emerald-50 text-emerald-600';
-      default: return 'bg-slate-50 text-slate-600';
+      case 'super_admin': return 'bg-orange-50 text-[#F35A05] border border-orange-100';
+      case 'admin_konten': return 'bg-sky-50 text-sky-600 border border-sky-100';
+      case 'validator': return 'bg-emerald-50 text-emerald-600 border border-emerald-100';
+      case 'admin_bot': return 'bg-purple-50 text-purple-600 border border-purple-100';
+      case 'analyst': return 'bg-amber-50 text-amber-600 border border-amber-100';
+      default: return 'bg-slate-50 text-slate-600 border border-slate-200';
     }
   };
 
@@ -131,7 +135,7 @@ export default function UsersList() {
       <div className="flex h-[60vh] w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest pl-1">Menyelaraskan Tim Admin...</p>
+          <p className="text-[9px] font-black text-slate-500 tracking-widest pl-1">Menyelaraskan Tim Admin...</p>
         </div>
       </div>
     );
@@ -144,7 +148,7 @@ export default function UsersList() {
           ⚠️
         </div>
         <div className="space-y-1">
-          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Akses Terbatas</h4>
+          <h4 className="text-xs font-black text-slate-800 tracking-wider">Akses Terbatas</h4>
           <p className="text-[11px] text-slate-500 font-semibold leading-relaxed">
             Halaman ini hanya dapat diakses oleh akun dengan tingkat wewenang **Super-Admin**.
           </p>

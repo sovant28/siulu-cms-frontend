@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }) {
       <div className="flex h-screen w-full items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
           <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Antarmuka Admin...</p>
+          <p className="text-[10px] font-bold text-slate-500 tracking-widest pl-1">Memuat Antarmuka Admin...</p>
         </div>
       </div>
     );
@@ -125,21 +125,21 @@ export default function DashboardLayout({ children }) {
     name: "Dashboard",
     path: "/dashboard",
     icon: LayoutDashboard,
-    allowed: ["super_admin", "admin_konten", "validator"]
+    allowed: ["super_admin", "admin_konten", "validator", "admin_bot", "analyst"]
   });
 
   menuItems.push({
     name: "Pengaturan Bot",
     path: "/dashboard/bot",
     icon: Bot,
-    allowed: ["super_admin", "admin_konten"]
+    allowed: ["super_admin", "admin_bot"]
   });
 
   menuItems.push({
     name: "Pengujian Bot",
     path: "/dashboard/sandbox",
     icon: MessageSquare,
-    allowed: ["super_admin", "admin_konten", "validator"]
+    allowed: ["super_admin", "admin_konten", "validator", "admin_bot"]
   });
 
   menuItems.push({
@@ -188,14 +188,14 @@ export default function DashboardLayout({ children }) {
     name: "Greetings & FAQ",
     path: "/dashboard/faq",
     icon: HelpCircle,
-    allowed: ["super_admin", "admin_konten"]
+    allowed: ["super_admin", "admin_konten", "admin_bot"]
   });
 
   menuItems.push({
     name: "Audit Feedback",
     path: "/dashboard/feedback",
     icon: ThumbsUp,
-    allowed: ["super_admin", "validator"]
+    allowed: ["super_admin", "validator", "analyst"]
   });
 
   menuItems.push({
@@ -212,6 +212,8 @@ export default function DashboardLayout({ children }) {
       case 'super_admin': return 'Super-Admin';
       case 'admin_konten': return 'Admin Konten';
       case 'validator': return 'Validator';
+      case 'admin_bot': return 'Admin Bot';
+      case 'analyst': return 'Analyst';
       default: return 'Admin';
     }
   };
@@ -221,6 +223,8 @@ export default function DashboardLayout({ children }) {
       case 'super_admin': return 'bg-orange-50 text-[#F35A05] border-orange-100';
       case 'admin_konten': return 'bg-blue-50 text-blue-600 border-blue-100';
       case 'validator': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'admin_bot': return 'bg-purple-50 text-purple-600 border-purple-100';
+      case 'analyst': return 'bg-amber-50 text-amber-600 border-amber-100';
       default: return 'bg-slate-100 text-slate-600 border-slate-400';
     }
   };
@@ -244,7 +248,7 @@ export default function DashboardLayout({ children }) {
             <div className="flex items-center space-x-2">
               <span className="text-[#F35A05] font-black text-xl tracking-tighter">Siulu'</span>
               <span className="h-1.5 w-1.5 rounded-full bg-[#F35A05] animate-pulse"></span>
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-orange-50 text-[#F35A05] font-bold uppercase tracking-wider ml-1 border border-orange-100 hidden md:block">Console</span>
+              <span className="text-[9px] px-2 py-0.5 rounded-full bg-orange-50 text-[#F35A05] font-bold tracking-wider ml-1 border border-orange-100 hidden md:block">Console</span>
             </div>
             <button 
               className="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-600"
@@ -285,10 +289,10 @@ export default function DashboardLayout({ children }) {
               <UserCheck className="w-4 h-4 text-slate-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-800 truncate leading-tight uppercase tracking-wider">
+              <h4 className="text-[10px] font-bold text-slate-800 truncate leading-tight tracking-wider">
                 {user?.email.split('@')[0]}
               </h4>
-              <span className={`inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border mt-1 leading-none ${getRoleBadgeStyle(role)}`}>
+              <span className={`inline-block text-[8px] font-bold px-1.5 py-0.5 rounded border mt-1 leading-none ${getRoleBadgeStyle(role)}`}>
                 {getRoleLabel(role)}
               </span>
             </div>
@@ -317,7 +321,7 @@ export default function DashboardLayout({ children }) {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none hidden sm:block">
+              <h1 className="text-[10px] font-bold text-slate-500 tracking-widest leading-none hidden sm:block">
                 Konsol Manajemen
               </h1>
               <h2 className="text-sm font-bold text-slate-800 sm:mt-1.5 leading-none">
@@ -333,7 +337,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           <div className="flex items-center space-x-3">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 tracking-wider">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
               Connected
             </span>
