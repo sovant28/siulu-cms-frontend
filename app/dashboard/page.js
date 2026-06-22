@@ -109,7 +109,8 @@ export default function DashboardHome() {
         let fastapiStatus = 'Offline';
         let activeLLM = 'Google Gemini';
         try {
-          const apiRes = await fetch('http://localhost:8000/api/bots/active');
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+          const apiRes = await fetch(`${apiBaseUrl}/bots/active`);
           if (apiRes.ok) {
             fastapiStatus = 'Connected';
             const activeBot = await apiRes.json();
