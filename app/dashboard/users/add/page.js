@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../supabase';
+import { createClient } from '@supabase/supabase-js';
 import { ChevronLeft, Save } from 'lucide-react';
 
 export default function AddUser() {
@@ -47,7 +48,19 @@ export default function AddUser() {
     setError('');
 
     try {
-      const { data: authData, error: authErr } = await supabase.auth.signUp({
+      // Create a temporary isolated client to register the new auth user.
+      // This prevents the new signup from hijacking/disrupting the logged-in super_admin's session.
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy-url.supabase.co';
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key';
+      const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        }
+      });
+
+      const { data: authData, error: authErr } = await tempSupabase.auth.signUp({
         email: email.trim(),
         password: password,
       });
