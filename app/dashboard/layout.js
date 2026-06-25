@@ -139,7 +139,7 @@ export default function DashboardLayout({ children }) {
     name: "Pengujian Bot",
     path: "/dashboard/sandbox",
     icon: MessageSquare,
-    allowed: ["super_admin", "admin_konten", "validator", "admin_bot"]
+    allowed: ["super_admin", "validator", "admin_bot"]
   });
 
   menuItems.push({
@@ -228,6 +228,39 @@ export default function DashboardLayout({ children }) {
       default: return 'bg-slate-100 text-slate-600 border-slate-400';
     }
   };
+
+  const matchingMenuItem = menuItems.find(item => {
+    if (item.path === '/dashboard') {
+      return pathname === '/dashboard';
+    }
+    return pathname.startsWith(item.path);
+  });
+
+  const isAllowed = !matchingMenuItem || matchingMenuItem.allowed.includes(role);
+
+  if (!loading && !isAllowed) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-50 px-4 font-sans antialiased text-slate-900">
+        <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-8 space-y-6 flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500 text-3xl">
+            ⚠️
+          </div>
+          <div className="space-y-2 text-center">
+            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest pl-1">Akses Halaman Ditolak</h2>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              Peran Anda ({getRoleLabel(role)}) tidak memiliki izin untuk mengakses halaman ini.
+            </p>
+          </div>
+          <button 
+            onClick={() => router.replace('/dashboard')}
+            className="w-full bg-[#F35A05] hover:bg-[#d94f04] text-white rounded-xl py-3.5 text-xs font-bold transition active:scale-[0.98]"
+          >
+            Kembali ke Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden font-sans text-slate-900">
