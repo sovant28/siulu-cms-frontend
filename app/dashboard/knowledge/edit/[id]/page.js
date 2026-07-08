@@ -438,8 +438,8 @@ export default function EditKnowledgeBase({ params }) {
       fitur_fasilitas: (entityType === 'darurat' && infoType === 'umum') ? [] : facilitiesList,
       aturan_tips: finalTips,
       kontak_info: (entityType === 'darurat' && infoType === 'umum') ? null : (destContact || null),
-      youtube_url: entityType === 'destinasi' && youtubeUrl ? youtubeUrl.trim() : null,
-      instagram_url: entityType === 'destinasi' && instagramUrl ? instagramUrl.trim() : null,
+      youtube_url: (entityType === 'destinasi' || entityType === 'event') && youtubeUrl ? youtubeUrl.trim() : null,
+      instagram_url: (entityType === 'destinasi' || entityType === 'event') && instagramUrl ? instagramUrl.trim() : null,
       is_featured: entityType === 'event' ? eventIsFeatured : false
     };
 
@@ -804,12 +804,14 @@ export default function EditKnowledgeBase({ params }) {
             </div>
           )}
 
-          {entityType === 'destinasi' && (
+          {(entityType === 'destinasi' || entityType === 'event') && (
             <>
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Aturan & Tips Berkunjung</label>
-                <input type="text" value={destTips} onChange={(e) => setDestTips(e.target.value)} placeholder="Berpakaian sopan, bawa uang tunai..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
-              </div>
+              {entityType === 'destinasi' && (
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Aturan & Tips Berkunjung</label>
+                  <input type="text" value={destTips} onChange={(e) => setDestTips(e.target.value)} placeholder="Berpakaian sopan, bawa uang tunai..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Link Embed YouTube (Opsional)</label>
