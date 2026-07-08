@@ -28,6 +28,7 @@ export default function EditKnowledgeBase({ params }) {
   const [formLoading, setFormLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [infoType, setInfoType] = useState('fisik'); // fisik, umum
 
   const isFood = entityType === 'restoran' && destId.startsWith('FOOD-');
 
@@ -262,6 +263,7 @@ export default function EditKnowledgeBase({ params }) {
                 }
               } else if (dest.kategori === 'darurat') {
                 setEntityType('darurat');
+                setInfoType(biayaInfo.jenis_info || (dest.kontak_info ? 'fisik' : 'umum'));
               } else {
                 setEntityType('destinasi');
                 setDestCategory(dest.kategori);
@@ -399,7 +401,11 @@ export default function EditKnowledgeBase({ params }) {
     } else if (entityType === 'darurat') {
       finalCategory = 'darurat';
       finalHours = null;
-      finalBiaya = { ...finalBiaya };
+      finalBiaya = { 
+        ...finalBiaya,
+        "jenis_info": infoType,
+        ...(infoType === 'umum' && { image_url: null })
+      };
       finalTips = null;
     }
 
@@ -408,13 +414,13 @@ export default function EditKnowledgeBase({ params }) {
       nama_tempat: destName,
       kategori: finalCategory,
       lokasi_wilayah: destRegion,
-      koordinat_gps: gpsCoords,
+      koordinat_gps: (entityType === 'darurat' && infoType === 'umum') ? null : gpsCoords,
       deskripsi_lengkap: destDescription,
       jam_operasional: finalHours,
       informasi_biaya: finalBiaya,
-      fitur_fasilitas: facilitiesList,
+      fitur_fasilitas: (entityType === 'darurat' && infoType === 'umum') ? [] : facilitiesList,
       aturan_tips: finalTips,
-      kontak_info: destContact || null,
+      kontak_info: (entityType === 'darurat' && infoType === 'umum') ? null : (destContact || null),
       youtube_url: entityType === 'destinasi' && youtubeUrl ? youtubeUrl.trim() : null,
       instagram_url: entityType === 'destinasi' && instagramUrl ? instagramUrl.trim() : null,
       is_featured: entityType === 'event' ? eventIsFeatured : false
@@ -477,16 +483,30 @@ export default function EditKnowledgeBase({ params }) {
             </div>
             <div className="space-y-2">
               <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">
-                {isFood ? 'Nama Kuliner / Makanan Tradisional *' : entityType === 'hotel' ? 'Nama Hotel / Akomodasi *' : entityType === 'restoran' ? 'Nama Restoran / Rumah Makan *' : entityType === 'event' ? 'Nama Event / Acara *' : entityType === 'darurat' ? 'Nama Info / Kontak Darurat *' : 'Nama Tempat Wisata *'}
+                {isFood ? 'Nama Kuliner / Makanan Tradisional *' : entityType === 'hotel' ? 'Nama Hotel / Akomodasi *' : entityType === 'restoran' ? 'Nama Restoran / Rumah Makan *' : entityType === 'event' ? 'Nama Event / Acara *' : entityType === 'darurat' ? (infoType === 'umum' ? 'Topik / Judul Informasi *' : 'Nama Layanan / Instansi Darurat *') : 'Nama Tempat Wisata *'}
               </label>
-              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${isFood ? 'Pa\'piong Ayam / Pantollo Pamarrasan / Kopi Arabika Toraja' : entityType === 'hotel' ? 'Hotel Pantan Makale' : entityType === 'restoran' ? 'Depot Idaman Makale' : entityType === 'event' ? 'Festival Seni Budaya Ma\'nene\' Gandasil' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Objek Wisata Buntu Burake / Situs Makam Pahat Lemo\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${isFood ? 'Pa\'piong Ayam / Pantollo Pamarrasan / Kopi Arabika Toraja' : entityType === 'hotel' ? 'Hotel Pantan Makale' : entityType === 'restoran' ? 'Depot Idaman Makale' : entityType === 'event' ? 'Festival Seni Budaya Ma\'nene\' Gandasil' : entityType === 'darurat' ? (infoType === 'umum' ? 'Daftar Bupati Tana Toraja / Sejarah Hari Jadi Tana Toraja' : 'Polres Tana Toraja / RSUD Lakipadada') : 'Objek Wisata Buntu Burake / Situs Makam Pahat Lemo\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
           </div>
 
+          {entityType === 'darurat' && (
+            <div className="space-y-2 p-4 bg-red-50/20 rounded-xl border border-red-100/60">
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tipe Informasi Darurat & Umum</label>
+              <select 
+                value={infoType} 
+                onChange={(e) => setInfoType(e.target.value)} 
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05]"
+              >
+                <option value="fisik">Layanan / Lokasi Fisik Kedaruratan (Rumah Sakit, Polisi, Puskesmas, Pemadam)</option>
+                <option value="umum">Pengetahuan Umum / Materi RAG (Bupati, Sejarah, Kependudukan, dll.)</option>
+              </select>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className={isFood ? "md:col-span-2 space-y-2" : "space-y-2"}>
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">{isFood ? 'Sentra Asal / Wilayah Tana Toraja *' : 'Wilayah / Lokasi *'}</label>
-              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder={isFood ? "Contoh: Sangalla, Tana Toraja (Wilayah Asal/Sentra)" : "Contoh: Makale, Tana Toraja / Sangalla, Tana Toraja"} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+            <div className={(isFood || (entityType === 'darurat' && infoType === 'umum')) ? "md:col-span-2 space-y-2" : "space-y-2"}>
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">{isFood ? 'Sentra Asal / Wilayah Tana Toraja *' : entityType === 'darurat' && infoType === 'umum' ? 'Cakupan Wilayah / Lingkup Informasi *' : 'Wilayah / Lokasi *'}</label>
+              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder={isFood ? "Contoh: Sangalla, Tana Toraja (Wilayah Asal/Sentra)" : entityType === 'darurat' && infoType === 'umum' ? "Contoh: Kabupaten Tana Toraja / Kecamatan Makale" : "Contoh: Makale, Tana Toraja / Sangalla, Tana Toraja"} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
             {entityType === 'destinasi' && (
               <div className="space-y-2">
@@ -507,7 +527,7 @@ export default function EditKnowledgeBase({ params }) {
                 </select>
               </div>
             )}
-            {entityType !== 'destinasi' && !isFood && (
+            {entityType !== 'destinasi' && !isFood && !(entityType === 'darurat' && infoType === 'umum') && (
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kontak Info / Telepon</label>
                 <input type="text" value={destContact} onChange={(e) => setDestContact(e.target.value)} placeholder="0812-3456-7890 / @instagram" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
@@ -658,7 +678,7 @@ export default function EditKnowledgeBase({ params }) {
             />
           </div>
 
-          {!isFood && (
+          {!isFood && !(entityType === 'darurat' && infoType === 'umum') && (
             <div>
               {entityType === 'darurat' ? (
                 <div className="space-y-2">
@@ -688,68 +708,70 @@ export default function EditKnowledgeBase({ params }) {
             </div>
           )}
 
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Foto Sampul / Banner (Drag & Drop atau Klik)</label>
-            
-            <div 
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              className={`relative w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition ${
-                dragActive 
-                  ? 'border-[#F35A05] bg-orange-50/10' 
-                  : 'border-slate-300 hover:border-[#F35A05] bg-slate-50/50 hover:bg-orange-50/5'
-              }`}
-            >
-              <input 
-                type="file"
-                id="image-drop-input"
-                accept="image/*"
-                onChange={handleImageUpload}
-                disabled={uploadingImage}
-                className="hidden"
-              />
+          {!(entityType === 'darurat' && infoType === 'umum') && (
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Foto Sampul / Banner (Drag & Drop atau Klik)</label>
               
-              {destImageUrl ? (
-                <div className="w-full flex flex-col items-center space-y-3">
-                  <div className="relative w-full max-w-md aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200/80">
-                    <img 
-                      src={destImageUrl} 
-                      alt="Preview upload" 
-                      className="object-cover w-full h-full"
-                    />
+              <div 
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                className={`relative w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition ${
+                  dragActive 
+                    ? 'border-[#F35A05] bg-orange-50/10' 
+                    : 'border-slate-300 hover:border-[#F35A05] bg-slate-50/50 hover:bg-orange-50/5'
+                }`}
+              >
+                <input 
+                  type="file"
+                  id="image-drop-input"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+                
+                {destImageUrl ? (
+                  <div className="w-full flex flex-col items-center space-y-3">
+                    <div className="relative w-full max-w-md aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200/80">
+                      <img 
+                        src={destImageUrl} 
+                        alt="Preview upload" 
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <label 
+                        htmlFor="image-drop-input"
+                        className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400 rounded-lg text-[10px] font-black text-slate-600 transition active:scale-95 cursor-pointer select-none"
+                      >
+                        Ganti Gambar
+                      </label>
+                      <button 
+                        type="button"
+                        onClick={() => setDestImageUrl('')}
+                        className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 rounded-lg text-[10px] font-black transition active:scale-95 select-none"
+                      >
+                        Hapus Gambar
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <label 
-                      htmlFor="image-drop-input"
-                      className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400 rounded-lg text-[10px] font-black text-slate-600 transition active:scale-95 cursor-pointer select-none"
-                    >
-                      Ganti Gambar
-                    </label>
-                    <button 
-                      type="button"
-                      onClick={() => setDestImageUrl('')}
-                      className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 rounded-lg text-[10px] font-black transition active:scale-95 select-none"
-                    >
-                      Hapus Gambar
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <label htmlFor="image-drop-input" className="flex flex-col items-center justify-center space-y-2 cursor-pointer w-full text-center">
-                  <UploadCloud className={`w-8 h-8 ${uploadingImage ? 'text-[#F35A05] animate-pulse' : 'text-slate-400'}`} />
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-slate-700">
-                      {uploadingImage ? 'Sedang mengunggah...' : 'Tarik & Letakkan gambar di sini, atau klik untuk memilih'}
-                    </p>
-                    <p className="text-[10px] text-slate-400">Mendukung format PNG, JPG, JPEG (Maks. 5MB). Gambar akan otomatis dikompresi.</p>
-                  </div>
-                </label>
-              )}
+                ) : (
+                  <label htmlFor="image-drop-input" className="flex flex-col items-center justify-center space-y-2 cursor-pointer w-full text-center">
+                    <UploadCloud className={`w-8 h-8 ${uploadingImage ? 'text-[#F35A05] animate-pulse' : 'text-slate-400'}`} />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-700">
+                        {uploadingImage ? 'Sedang mengunggah...' : 'Tarik & Letakkan gambar di sini, atau klik untuk memilih'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">Mendukung format PNG, JPG, JPEG (Maks. 5MB). Gambar akan otomatis dikompresi.</p>
+                    </div>
+                  </label>
+                )}
+              </div>
+              <p className="text-[10px] text-slate-400 pl-1">Gambar ini akan digunakan sebagai cover utama kartu informasi di aplikasi PWA Siulu'.</p>
             </div>
-            <p className="text-[10px] text-slate-400 pl-1">Gambar ini akan digunakan sebagai cover utama kartu informasi di aplikasi PWA Siulu'.</p>
-          </div>
+          )}
 
           {entityType === 'destinasi' && (
             <>
