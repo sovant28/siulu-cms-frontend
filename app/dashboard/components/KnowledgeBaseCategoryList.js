@@ -157,15 +157,23 @@ export default function KnowledgeBaseCategoryList({
   };
 
   // Filter based on parent filterFn and search query
-  const categoryFiltered = destinations.filter(filterFn);
+  const categoryFiltered = (destinations || []).filter(item => {
+    return item && filterFn(item);
+  });
   
   const finalFiltered = categoryFiltered.filter(dest => {
+    if (!dest) return false;
     const q = searchQuery.toLowerCase();
+    const id = dest.id || '';
+    const nama = dest.nama_tempat || '';
+    const kat = dest.kategori || '';
+    const wilayah = dest.lokasi_wilayah || '';
+    
     return (
-      dest.id.toLowerCase().includes(q) ||
-      dest.nama_tempat.toLowerCase().includes(q) ||
-      dest.kategori.toLowerCase().includes(q) ||
-      dest.lokasi_wilayah.toLowerCase().includes(q)
+      id.toLowerCase().includes(q) ||
+      nama.toLowerCase().includes(q) ||
+      kat.toLowerCase().includes(q) ||
+      wilayah.toLowerCase().includes(q)
     );
   });
 
@@ -184,7 +192,7 @@ export default function KnowledgeBaseCategoryList({
       <div className="flex h-[60vh] w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Data...</p>
+          <p className="text-[9px] font-bold text-slate-500 tracking-widest pl-1">Memuat Data...</p>
         </div>
       </div>
     );
