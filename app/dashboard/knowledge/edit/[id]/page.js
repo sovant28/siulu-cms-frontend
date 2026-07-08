@@ -490,16 +490,30 @@ export default function EditKnowledgeBase({ params }) {
           </div>
 
           {entityType === 'darurat' && (
-            <div className="space-y-2 p-4 bg-red-50/20 rounded-xl border border-red-100/60">
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tipe Informasi Darurat & Umum</label>
-              <select 
-                value={infoType} 
-                onChange={(e) => setInfoType(e.target.value)} 
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05]"
-              >
-                <option value="fisik">Layanan / Lokasi Fisik Kedaruratan (Rumah Sakit, Polisi, Puskesmas, Pemadam)</option>
-                <option value="umum">Pengetahuan Umum / Materi RAG (Bupati, Sejarah, Kependudukan, dll.)</option>
-              </select>
+            <div className="space-y-3 p-4 bg-red-50/10 rounded-xl border border-red-100/60">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tipe Informasi Darurat & Umum</label>
+                <select 
+                  value={infoType} 
+                  onChange={(e) => setInfoType(e.target.value)} 
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition"
+                >
+                  <option value="fisik">Layanan / Lokasi Fisik Kedaruratan (Rumah Sakit, Polisi, Puskesmas, Pemadam)</option>
+                  <option value="umum">Pengetahuan Umum / Materi RAG (Bupati, Sejarah, Kependudukan, dll.)</option>
+                </select>
+              </div>
+              
+              <div className="p-3 bg-white rounded-lg border border-red-100/80 text-[11px] leading-relaxed text-slate-600 font-medium">
+                {infoType === 'fisik' ? (
+                  <p>
+                    <span className="text-red-600 font-bold">Catatan PWA:</span> Data lokasi fisik kedaruratan <span className="text-slate-900 font-semibold">akan ditampilkan</span> di aplikasi PWA sebagai kartu kontak darurat. Wisatawan dapat langsung menekan tombol telepon atau melihat rute navigasi GPS.
+                  </p>
+                ) : (
+                  <p>
+                    <span className="text-[#F35A05] font-bold">Catatan AI:</span> Pengetahuan umum <span className="text-slate-900 font-semibold">tidak akan muncul</span> sebagai kartu di PWA. Data ini disimpan murni untuk memperkaya basis pengetahuan chatbot AI (RAG) agar dapat menjawab pertanyaan seputar sejarah, tokoh, atau informasi umum lainnya.
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
