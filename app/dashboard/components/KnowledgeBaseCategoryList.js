@@ -57,15 +57,58 @@ export default function KnowledgeBaseCategoryList({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const currentToken = session?.access_token || token;
-      const res = await fetch(`${API_URL}/knowledge/destinasi`, {
+      
+      const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(id);
+          return response;
+        } catch (e) {
+          clearTimeout(id);
+          throw e;
+        }
+      };
+
+      const res = await fetchWithTimeout(`${API_URL}/knowledge/destinasi`, {
         headers: { 'Authorization': `Bearer ${currentToken}` }
       });
+      
       if (res.ok) {
         const data = await res.json();
         setDestinations(data);
+        return;
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Gagal mengambil RAG dari API, mencoba fallback Supabase:", err);
+    }
+
+    // Fallback: Ambil data langsung dari Supabase untuk menghindari cek CORS API yang tersangkut
+    try {
+      const { data, error } = await supabase
+        .from('destinasi_wisata')
+        .select('*')
+        .order('terakhir_diperbarui', { ascending: false });
+
+      if (error) throw error;
+
+      const formatted = (data || []).map(item => {
+        let gps = item.koordinat_gps;
+        if (typeof gps === 'string' && gps.startsWith("POINT")) {
+          try {
+            const parts = gps.replace("POINT(", "").replace(")", "").split(" ");
+            gps = [parseFloat(parts[1]), parseFloat(parts[0])];
+          } catch (e) {}
+        }
+        return {
+          ...item,
+          koordinat_gps: gps
+        };
+      });
+      setDestinations(formatted);
+    } catch (dbErr) {
+      console.error("Gagal memuat RAG via Supabase fallback:", dbErr);
     }
   };
 
