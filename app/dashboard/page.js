@@ -201,7 +201,7 @@ export default function DashboardHome() {
       <div className="flex h-[60vh] w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Menghitung Statistik...</p>
+          <p className="text-[9px] font-bold text-slate-500 tracking-widest pl-1">Menghitung Statistik...</p>
         </div>
       </div>
     );
@@ -236,7 +236,7 @@ export default function DashboardHome() {
       {/* Personalized Header Section */}
       <div className="flex flex-col space-y-1">
         <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-          Welcome back, {adminEmail ? adminEmail.split('@')[0] : 'Admin'}! 👋
+          Selamat Datang Kembali, {adminEmail ? adminEmail.split('@')[0] : 'Admin'}! 👋
         </h2>
         <div className="flex items-center space-x-2 text-slate-500 text-sm font-medium">
           <Calendar className="w-4 h-4" />
@@ -244,16 +244,16 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Premium Stat Cards (Borderless, clean shadow) */}
+      {/* Premium Stat Cards (Flat, clean outline) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, idx) => {
           const IconComp = card.icon;
           return (
-            <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-start justify-between group hover:shadow-md transition duration-300">
+            <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-200/80 flex items-start justify-between group hover:border-[#F35A05]/50 transition duration-300">
               <div className="space-y-3">
                 <span className="text-xs font-bold text-slate-500">{card.label}</span>
                 <h3 className="text-4xl font-black text-slate-800 tracking-tight">{card.value}</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{card.sub}</p>
+                <p className="text-[10px] font-bold text-slate-400 tracking-wider">{card.sub}</p>
               </div>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getCardIconStyle(card.color)}`}>
                 <IconComp className="w-6 h-6" />
@@ -268,8 +268,8 @@ export default function DashboardHome() {
         {/* Left Column (Chart & Feedback) */}
         <div className="lg:col-span-8 space-y-8">
           
-          {/* CSS Chart Section */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[320px]">
+          {/* CSS Chart Section (Flat) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 flex flex-col h-[320px]">
             <div className="flex items-center justify-between mb-8">
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-slate-800">Aktivitas Percakapan</h3>
@@ -361,12 +361,11 @@ export default function DashboardHome() {
 
         {/* Right Column (System Status & Quick Actions) */}
         <div className="lg:col-span-4 space-y-8">
-          
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-5">
+                  {/* Quick Actions (Flat) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-5">
             <h3 className="text-sm font-bold text-slate-800">Akses Cepat</h3>
             <div className="space-y-3">
-              <Link href="/dashboard/knowledge/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] hover:shadow-sm transition group">
+              <Link href="/dashboard/knowledge/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
                 <div className="w-10 h-10 rounded-lg bg-orange-50 text-[#F35A05] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Database className="w-5 h-5" />
                 </div>
@@ -375,7 +374,7 @@ export default function DashboardHome() {
                   <div className="text-[10px] text-slate-500 font-medium">Inject artikel RAG baru</div>
                 </div>
               </Link>
-              <Link href="/dashboard/faq/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] hover:shadow-sm transition group">
+              <Link href="/dashboard/faq/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
                 <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Zap className="w-5 h-5" />
                 </div>
@@ -384,7 +383,7 @@ export default function DashboardHome() {
                   <div className="text-[10px] text-slate-500 font-medium">Setup regex fallback statis</div>
                 </div>
               </Link>
-              <Link href="/dashboard/sandbox" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] hover:shadow-sm transition group">
+              <Link href="/dashboard/sandbox" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
                 <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <MessageSquare className="w-5 h-5" />
                 </div>
@@ -396,8 +395,8 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          {/* System Status */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-5">
+          {/* System Status (Flat) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-800">Status Operasional</h3>
               <div className={`flex items-center space-x-1.5 px-2 py-1 rounded-full ${
@@ -413,8 +412,8 @@ export default function DashboardHome() {
                     systemStatus.allSystemsGo ? 'bg-emerald-500' : 'bg-rose-500'
                   }`}></span>
                 </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider">
-                  {systemStatus.allSystemsGo ? 'All Systems Go' : 'Systems Disrupted'}
+                <span className="text-[9px] font-bold tracking-wider">
+                  {systemStatus.allSystemsGo ? 'Sistem Aktif' : 'Gangguan Sistem'}
                 </span>
               </div>
             </div>
