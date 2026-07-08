@@ -54,13 +54,40 @@ export default function BotList() {
 
   const fetchBots = async () => {
     try {
-      const res = await fetch(`${API_URL}/bots/`);
+      const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(id);
+          return response;
+        } catch (e) {
+          clearTimeout(id);
+          throw e;
+        }
+      };
+
+      const res = await fetchWithTimeout(`${API_URL}/bots/`);
       if (res.ok) {
         const data = await res.json();
         setBots(data);
+        return;
       }
     } catch (err) {
-      console.error("Gagal mengambil data bot:", err);
+      console.warn("Gagal mengambil data bot dari API, mencoba fallback Supabase:", err);
+    }
+
+    // Fallback: Ambil data langsung dari Supabase
+    try {
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setBots(data || []);
+    } catch (dbErr) {
+      console.error("Gagal memuat bot via Supabase fallback:", dbErr);
     }
   };
 
@@ -160,13 +187,19 @@ export default function BotList() {
     }
   };
 
-  const filteredBots = bots.filter(bot => {
+  const filteredBots = (bots || []).filter(bot => {
+    if (!bot) return false;
     const q = searchQuery.toLowerCase();
+    const name = bot.name || '';
+    const desc = bot.description || '';
+    const model = bot.model || '';
+    const provider = bot.provider || '';
+    
     return (
-      bot.name.toLowerCase().includes(q) ||
-      (bot.description || '').toLowerCase().includes(q) ||
-      bot.model.toLowerCase().includes(q) ||
-      bot.provider.toLowerCase().includes(q)
+      name.toLowerCase().includes(q) ||
+      desc.toLowerCase().includes(q) ||
+      model.toLowerCase().includes(q) ||
+      provider.toLowerCase().includes(q)
     );
   });
 

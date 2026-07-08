@@ -54,15 +54,55 @@ export default function FeedbackList() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const currentToken = session?.access_token || token;
-      const res = await fetch(`${API_URL}/bots/feedback`, {
+
+      const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(id);
+          return response;
+        } catch (e) {
+          clearTimeout(id);
+          throw e;
+        }
+      };
+
+      const res = await fetchWithTimeout(`${API_URL}/bots/feedback`, {
         headers: { 'Authorization': `Bearer ${currentToken}` }
       });
       if (res.ok) {
         const data = await res.json();
         setFeedbacks(data);
+        return;
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Gagal mengambil data feedback dari API, mencoba fallback Supabase:", err);
+    }
+
+    // Fallback: Ambil data langsung dari Supabase
+    try {
+      const { data, error } = await supabase
+        .from('chat_logs_temporary')
+        .select('*')
+        .not('feedback_type', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formatted = (data || []).map(item => ({
+        id: item.id,
+        is_positive: item.feedback_type === 'up',
+        user_message: item.user_query,
+        bot_response: item.ai_response,
+        komentar: item.feedback_note,
+        created_at: item.created_at,
+        model_used: item.model_used,
+        rag_sources: item.rag_sources
+      }));
+      setFeedbacks(formatted);
+    } catch (dbErr) {
+      console.error("Gagal memuat feedback via Supabase fallback:", dbErr);
     }
   };
 

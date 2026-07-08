@@ -112,11 +112,15 @@ export default function UsersList() {
     }
   };
 
-  const filteredTeam = team.filter(t => {
+  const filteredTeam = (team || []).filter(t => {
+    if (!t) return false;
     const q = searchQuery.toLowerCase();
+    const email = t.email || '';
+    const roleLabel = getRoleLabel(t.role) || '';
+    
     return (
-      t.email.toLowerCase().includes(q) ||
-      getRoleLabel(t.role).toLowerCase().includes(q)
+      email.toLowerCase().includes(q) ||
+      roleLabel.toLowerCase().includes(q)
     );
   });
 

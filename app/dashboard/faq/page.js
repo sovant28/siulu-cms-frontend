@@ -106,15 +106,43 @@ export default function FaqList() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const currentToken = session?.access_token || token;
-      const res = await fetch(`${API_URL}/greetings/`, {
+
+      const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(id);
+          return response;
+        } catch (e) {
+          clearTimeout(id);
+          throw e;
+        }
+      };
+
+      const res = await fetchWithTimeout(`${API_URL}/greetings/`, {
         headers: { 'Authorization': `Bearer ${currentToken}` }
       });
       if (res.ok) {
         const data = await res.json();
         setGreetings(data);
+        return;
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Gagal mengambil data sapaan dari API, mencoba fallback Supabase:", err);
+    }
+
+    // Fallback: Ambil data langsung dari Supabase
+    try {
+      const { data, error } = await supabase
+        .from('greetings_faq')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGreetings(data || []);
+    } catch (dbErr) {
+      console.error("Gagal memuat sapaan via Supabase fallback:", dbErr);
     }
   };
 
@@ -122,15 +150,44 @@ export default function FaqList() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const currentToken = session?.access_token || token;
-      const res = await fetch(`${API_URL}/greetings/logs`, {
+
+      const fetchWithTimeout = async (url, options = {}, timeout = 2500) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(id);
+          return response;
+        } catch (e) {
+          clearTimeout(id);
+          throw e;
+        }
+      };
+
+      const res = await fetchWithTimeout(`${API_URL}/greetings/logs`, {
         headers: { 'Authorization': `Bearer ${currentToken}` }
       });
       if (res.ok) {
         const data = await res.json();
         setLogs(data);
+        return;
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Gagal mengambil logs dari API, mencoba fallback Supabase:", err);
+    }
+
+    // Fallback: Ambil data langsung dari Supabase
+    try {
+      const { data, error } = await supabase
+        .from('chat_logs_temporary')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setLogs(data || []);
+    } catch (dbErr) {
+      console.error("Gagal memuat logs via Supabase fallback:", dbErr);
     }
   };
 
