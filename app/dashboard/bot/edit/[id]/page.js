@@ -20,6 +20,8 @@ export default function EditBot({ params }) {
   const [botApiKey, setBotApiKey] = useState('');
   const [botBaseUrl, setBotBaseUrl] = useState('');
   const [botGreetingsModel, setBotGreetingsModel] = useState('');
+  const [fetchedModels, setFetchedModels] = useState([]);
+  const [fetchingModels, setFetchingModels] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
@@ -75,6 +77,44 @@ export default function EditBot({ params }) {
     };
     initPage();
   }, [unwrappedParams.id, router]);
+
+  const handleFetchModels = async () => {
+    if (!botApiKey || !botBaseUrl) {
+      alert("Masukkan Custom API Key dan Custom Base URL terlebih dahulu.");
+      return;
+    }
+    setFetchingModels(true);
+    try {
+      const res = await fetch(`${API_URL}/bots/fetch-models`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          api_key: botApiKey,
+          base_url: botBaseUrl
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.models && data.models.length > 0) {
+          setFetchedModels(data.models);
+          alert(`Berhasil mengambil ${data.models.length} model!`);
+        } else {
+          alert("Tidak ada model yang ditemukan dari API provider.");
+        }
+      } else {
+        const err = await res.json();
+        alert(`Gagal mengambil model: ${err.detail || 'Error'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Kesalahan koneksi saat mengambil model.");
+    } finally {
+      setFetchingModels(false);
+    }
+  };
 
   const handleSaveBot = async (e) => {
     e.preventDefault();
@@ -193,13 +233,37 @@ export default function EditBot({ params }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Model Name *</label>
-              <input 
-                type="text" required 
-                value={botModel} onChange={(e) => setBotModel(e.target.value)}
-                placeholder="gemini-3.1-flash-lite"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-bold text-slate-700">Model Name *</label>
+                {fetchedModels.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFetchedModels([])}
+                    className="text-[10px] font-bold text-[#F35A05] hover:underline"
+                  >
+                    Masukkan Manual
+                  </button>
+                )}
+              </div>
+              {fetchedModels.length > 0 ? (
+                <select
+                  value={botModel}
+                  onChange={(e) => setBotModel(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                >
+                  <option value="">Pilih Model Utama...</option>
+                  {fetchedModels.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              ) : (
+                <input 
+                  type="text" required 
+                  value={botModel} onChange={(e) => setBotModel(e.target.value)}
+                  placeholder="gemini-3.1-flash-lite"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+              )}
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700">Preset Cepat (Opsional)</label>
@@ -234,24 +298,49 @@ export default function EditBot({ params }) {
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700">Custom Base URL (Opsional)</label>
-              <input 
-                type="text" 
-                value={botBaseUrl} onChange={(e) => setBotBaseUrl(e.target.value)}
-                placeholder="https://api.openai.com/v1"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
+              <div className="flex space-x-2">
+                <input 
+                  type="text" 
+                  value={botBaseUrl} onChange={(e) => setBotBaseUrl(e.target.value)}
+                  placeholder="https://api.openai.com/v1"
+                  className="flex-1 bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchModels}
+                  disabled={fetchingModels}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-950 text-white font-bold rounded-lg text-xs transition flex items-center space-x-1"
+                >
+                  {fetchingModels ? (
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+                  ) : <span>Ambil Model</span>}
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700">Greetings Model Name (Opsional)</label>
-              <input 
-                type="text" 
-                value={botGreetingsModel} onChange={(e) => setBotGreetingsModel(e.target.value)}
-                placeholder="Model murah untuk sapaan (misal: qwen-turbo)"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
+              {fetchedModels.length > 0 ? (
+                <select
+                  value={botGreetingsModel}
+                  onChange={(e) => setBotGreetingsModel(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                >
+                  <option value="">Gunakan Default / Pilih Model Greetings...</option>
+                  {fetchedModels.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              ) : (
+                <input 
+                  type="text" 
+                  value={botGreetingsModel} onChange={(e) => setBotGreetingsModel(e.target.value)}
+                  placeholder="Model murah untuk sapaan (misal: qwen-turbo)"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+              )}
             </div>
             <div className="flex items-end text-xs text-slate-500 pb-3">
               Model ini digunakan khusus menjawab sapaan basa-basi (greetings) untuk menghemat token model utama.
