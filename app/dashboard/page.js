@@ -136,8 +136,14 @@ export default function DashboardHome() {
           activeBotsCount = 1;
           if (mainBot.provider === 'qwen') {
             activeLLM = 'Alibaba Qwen';
-          } else {
+          } else if (mainBot.provider === 'openai') {
+            activeLLM = 'OpenAI';
+          } else if (mainBot.provider === 'custom') {
+            activeLLM = 'Custom API';
+          } else if (mainBot.provider === 'gemini') {
             activeLLM = 'Google Gemini';
+          } else {
+            activeLLM = mainBot.provider || 'Google Gemini';
           }
         }
 
