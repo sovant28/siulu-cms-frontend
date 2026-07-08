@@ -174,180 +174,231 @@ export default function EditBot({ params }) {
         </div>
       </div>
 
-      <div className="max-w-4xl bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-        <form onSubmit={handleSaveBot} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Nama Bot *</label>
-              <input 
-                type="text" required 
-                value={botName} onChange={(e) => setBotName(e.target.value)}
-                placeholder="Contoh: Mebali AI"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
+      <div className="max-w-4xl bg-white border border-slate-200 rounded-xl p-8">
+        <form onSubmit={handleSaveBot} className="space-y-10">
+          
+          {/* Section 1: Profil & Identitas Bot */}
+          <div className="space-y-4">
+            <div className="pb-2 border-b border-slate-100">
+              <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">1. Profil & Identitas Bot</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Nama, deskripsi, dan instruksi kepribadian utama chatbot Anda.</p>
             </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Deskripsi Singkat</label>
-              <input 
-                type="text" 
-                value={botDesc} onChange={(e) => setBotDesc(e.target.value)}
-                placeholder="Pemandu adat Rambu Solo'"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-700">System Instruction (Persona) *</label>
-            <textarea 
-              required rows={5}
-              value={botInstruction} onChange={(e) => setBotInstruction(e.target.value)}
-              placeholder="Anda adalah asisten virtual pariwisata Tana Toraja..."
-              className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Provider *</label>
-              <select 
-                value={botProvider} onChange={(e) => setBotProvider(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              >
-                <option value="gemini">Google Gemini</option>
-                <option value="qwen">Alibaba Qwen</option>
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="custom">Custom (Lokal/Lainnya)</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Temperature (0.0 - 2.0) *</label>
-              <input 
-                type="number" step="0.1" min="0" max="2" required
-                value={botTemp} onChange={(e) => setBotTemp(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="block text-xs font-bold text-slate-700">Model Name *</label>
-                {fetchedModels.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setFetchedModels([])}
-                    className="text-[10px] font-bold text-[#F35A05] hover:underline"
-                  >
-                    Masukkan Manual
-                  </button>
-                )}
-              </div>
-              {fetchedModels.length > 0 ? (
-                <select
-                  value={botModel}
-                  onChange={(e) => setBotModel(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-                >
-                  <option value="">Pilih Model Utama...</option>
-                  {fetchedModels.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              ) : (
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Nama Bot *</label>
                 <input 
                   type="text" required 
-                  value={botModel} onChange={(e) => setBotModel(e.target.value)}
-                  placeholder="gemini-3.1-flash-lite"
+                  value={botName} onChange={(e) => setBotName(e.target.value)}
+                  placeholder="Contoh: Mebali AI"
                   className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
                 />
-              )}
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Deskripsi Singkat</label>
+                <input 
+                  type="text" 
+                  value={botDesc} onChange={(e) => setBotDesc(e.target.value)}
+                  placeholder="Contoh: Pemandu Wisata Tana Toraja"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+              </div>
             </div>
+
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Preset Cepat (Opsional)</label>
-              <select 
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setBotModel(e.target.value);
-                    setBotProvider(e.target.options[e.target.selectedIndex].getAttribute('data-provider'));
-                  }
-                }}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              >
-                <option value="">Pilih Preset...</option>
-                <option value="gemini-3.1-flash-lite" data-provider="gemini">Gemini 3.1 Flash-Lite</option>
-                <option value="gemini-3.1-pro" data-provider="gemini">Gemini 3.1 Pro</option>
-                <option value="qwen2.5-72b-instruct" data-provider="qwen">Qwen 2.5 72B</option>
-                <option value="gpt-4o-mini" data-provider="openai">GPT-4o Mini</option>
-                <option value="claude-3-5-sonnet-20240620" data-provider="anthropic">Claude 3.5 Sonnet</option>
-              </select>
+              <label className="block text-xs font-bold text-slate-700">System Instruction (Persona) *</label>
+              <textarea 
+                required rows={5}
+                value={botInstruction} onChange={(e) => setBotInstruction(e.target.value)}
+                placeholder="Anda adalah asisten virtual pariwisata Tana Toraja..."
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y font-mono text-xs"
+              />
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Tulis instruksi persona secara spesifik. Ingat untuk memandu model agar menggunakan sapaan Toraja seperti <strong>Sangmane/Siulu'</strong>, penutup <strong>Kurre sumanga'</strong>, membatasi cakupan hanya pada Kabupaten Tana Toraja, dan mematuhi dokumen referensi RAG secara ketat.
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Custom API Key (Opsional)</label>
-              <input 
-                type="password" 
-                value={botApiKey} onChange={(e) => setBotApiKey(e.target.value)}
-                placeholder="Biarkan kosong jika pakai dari .env"
-                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-              />
+          {/* Section 2: API & Jalur Provider */}
+          <div className="space-y-4 pt-6 border-t border-slate-100">
+            <div className="pb-2 border-b border-slate-100">
+              <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">2. Jalur API & Provider</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Koneksi backend ke server penyedia AI utama atau kustom Anda.</p>
             </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Custom Base URL (Opsional)</label>
-              <div className="flex space-x-2">
-                <input 
-                  type="text" 
-                  value={botBaseUrl} onChange={(e) => setBotBaseUrl(e.target.value)}
-                  placeholder="https://api.openai.com/v1"
-                  className="flex-1 bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-                />
-                <button
-                  type="button"
-                  onClick={handleFetchModels}
-                  disabled={fetchingModels}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-950 text-white font-bold rounded-lg text-xs transition flex items-center space-x-1"
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Provider Utama *</label>
+                <select 
+                  value={botProvider} onChange={(e) => setBotProvider(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
                 >
-                  {fetchingModels ? (
-                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-                  ) : <span>Ambil Model</span>}
-                </button>
+                  <option value="gemini">Google Gemini</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="qwen">Alibaba Qwen</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="custom">Custom (Lokal/Lainnya)</option>
+                </select>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  <strong>Penting:</strong> Sesuaikan provider dengan model Anda. Jika memakai model dari Sumopod/OpenRouter, pilih <strong>OpenAI</strong> atau <strong>Custom</strong>. Jika memakai model Gemini resmi, pilih <strong>Google Gemini</strong>.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Temperature (0.0 - 2.0) *</label>
+                <input 
+                  type="number" step="0.1" min="0" max="2" required
+                  value={botTemp} onChange={(e) => setBotTemp(e.target.value)}
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Semakin rendah nilainya (misal <strong>0.2</strong>), jawaban AI akan semakin patuh pada fakta dokumen RAG. Semakin tinggi (misal <strong>0.7</strong>), gaya bicara AI akan semakin kreatif.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Custom API Key (Opsional)</label>
+                <input 
+                  type="password" 
+                  value={botApiKey} onChange={(e) => setBotApiKey(e.target.value)}
+                  placeholder="Biarkan kosong jika memakai kunci default bawaan"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Custom Base URL (Opsional)</label>
+                <div className="flex space-x-2">
+                  <input 
+                    type="text" 
+                    value={botBaseUrl} onChange={(e) => setBotBaseUrl(e.target.value)}
+                    placeholder="Contoh: https://openrouter.ai/api/v1"
+                    className="flex-1 bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleFetchModels}
+                    disabled={fetchingModels}
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-950 text-white font-bold rounded-lg text-xs transition flex items-center space-x-1"
+                  >
+                    {fetchingModels ? (
+                      <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+                    ) : <span>Ambil Model</span>}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Setelah mengisi API Key & Base URL di atas, klik <strong>Ambil Model</strong> untuk mendeteksi pilihan model otomatis.
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Greetings Model Name (Opsional)</label>
-              {fetchedModels.length > 0 ? (
-                <select
-                  value={botGreetingsModel}
-                  onChange={(e) => setBotGreetingsModel(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-                >
-                  <option value="">Gunakan Default / Pilih Model Greetings...</option>
-                  {fetchedModels.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              ) : (
-                <input 
-                  type="text" 
-                  value={botGreetingsModel} onChange={(e) => setBotGreetingsModel(e.target.value)}
-                  placeholder="Model murah untuk sapaan (misal: qwen-turbo)"
-                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
-                />
-              )}
+          {/* Section 3: Model & Konfigurasi AI */}
+          <div className="space-y-4 pt-6 border-t border-slate-100">
+            <div className="pb-2 border-b border-slate-100">
+              <h3 className="text-sm font-extrabold text-slate-800 tracking-tight">3. Model & Konfigurasi AI</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Tentukan model pintar untuk menjawab konten RAG dan model hemat untuk sapaan pembuka.</p>
             </div>
-            <div className="flex items-end text-xs text-slate-500 pb-3">
-              Model ini digunakan khusus menjawab sapaan basa-basi (greetings) untuk menghemat token model utama.
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700">Model Name *</label>
+                  {fetchedModels.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFetchedModels([])}
+                      className="text-[10px] font-bold text-[#F35A05] hover:underline"
+                    >
+                      Masukkan Manual
+                    </button>
+                  )}
+                </div>
+                {fetchedModels.length > 0 ? (
+                  <select
+                    value={botModel}
+                    onChange={(e) => setBotModel(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                  >
+                    <option value="">Pilih Model Utama...</option>
+                    {fetchedModels.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    type="text" required 
+                    value={botModel} onChange={(e) => setBotModel(e.target.value)}
+                    placeholder="Contoh: gpt-4o-mini"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                  />
+                )}
+                <p className="text-[11px] text-slate-500">
+                  Model utama pintar yang bertanggung jawab memproses dokumen pengetahuan RAG.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Greetings Model Name (Opsional)</label>
+                {fetchedModels.length > 0 ? (
+                  <select
+                    value={botGreetingsModel}
+                    onChange={(e) => setBotGreetingsModel(e.target.value)}
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                  >
+                    <option value="">Gunakan Default / Pilih Model Greetings...</option>
+                    {fetchedModels.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    type="text" 
+                    value={botGreetingsModel} onChange={(e) => setBotGreetingsModel(e.target.value)}
+                    placeholder="Contoh: gpt-5-nano"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                  />
+                )}
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Model yang lebih murah/cepat khusus menjawab sapaan basa-basi (greetings) untuk menghemat biaya model utama.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700">Preset Cepat (Alternatif)</label>
+                <select 
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setBotModel(e.target.value);
+                      setBotProvider(e.target.options[e.target.selectedIndex].getAttribute('data-provider'));
+                    }
+                  }}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+                >
+                  <option value="">Pilih Preset...</option>
+                  <option value="gemini-2.5-flash" data-provider="gemini">Gemini 2.5 Flash</option>
+                  <option value="gemini-2.5-pro" data-provider="gemini">Gemini 2.5 Pro</option>
+                  <option value="gpt-4o-mini" data-provider="openai">GPT-4o Mini</option>
+                  <option value="claude-3-5-sonnet-20240620" data-provider="anthropic">Claude 3.5 Sonnet</option>
+                </select>
+                <p className="text-[11px] text-slate-500">
+                  Gunakan preset cepat ini jika Anda ingin langsung memakai model standar bawaan .env tanpa API kustom.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="pt-6 mt-6 border-t border-slate-200">
+          {/* Action Buttons */}
+          <div className="pt-6 mt-6 border-t border-slate-200 flex items-center justify-between">
+            <button 
+              type="button"
+              onClick={() => router.push('/dashboard/bot')}
+              className="px-5 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-lg text-sm transition"
+            >
+              Batal
+            </button>
             <button 
               type="submit" disabled={formLoading}
               className="px-6 py-2.5 bg-[#F35A05] hover:bg-[#d94200] text-white font-bold rounded-lg text-sm transition flex items-center space-x-2"
