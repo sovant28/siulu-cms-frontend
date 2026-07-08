@@ -33,7 +33,7 @@ export default function DashboardHome() {
     supabase: 'Loading...',
     supabasePing: null,
     embedding: 'Matryoshka 512',
-    llmProvider: 'Google Gemini',
+    llmProvider: 'Loading...',
     activeModel: 'Loading...',
     activeBotName: 'Loading...',
     activeBotsCount: 0,
@@ -110,9 +110,9 @@ export default function DashboardHome() {
 
         // Test FastAPI connection and get active LLM provider details
         let fastapiStatus = 'Offline';
-        let activeLLM = 'Google Gemini';
-        let activeModel = 'gemini-1.5-flash';
-        let activeBotName = 'Mebali AI';
+        let activeLLM = 'Tidak Terhubung';
+        let activeModel = '-';
+        let activeBotName = '-';
         let activeBotsCount = 0;
 
         try {
