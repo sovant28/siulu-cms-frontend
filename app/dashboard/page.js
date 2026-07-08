@@ -52,6 +52,78 @@ export default function DashboardHome() {
   ]);
 
   useEffect(() => {
+    const fetchFastAPIStatus = async (dbLatency) => {
+      let fastapiStatus = 'Offline';
+      let activeLLM = 'Tidak Terhubung';
+      let activeModel = '-';
+      let activeBotName = '-';
+      let activeBotsCount = 0;
+
+      try {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+        
+        // Timeout helper to abort requests that hang
+        const fetchWithTimeout = async (url, timeout = 2500) => {
+          const controller = new AbortController();
+          const id = setTimeout(() => controller.abort(), timeout);
+          try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(id);
+            return response;
+          } catch (e) {
+            clearTimeout(id);
+            throw e;
+          }
+        };
+
+        const allBotsRes = await fetchWithTimeout(`${apiBaseUrl}/bots`);
+        if (allBotsRes.ok) {
+          fastapiStatus = 'Connected';
+          const allBots = await allBotsRes.json();
+          const activeBots = allBots.filter(b => b.is_active);
+          activeBotsCount = activeBots.length;
+
+          if (activeBotsCount > 0) {
+            const mainBot = activeBots[0];
+            activeBotName = mainBot.name;
+            activeModel = mainBot.model;
+            if (mainBot.provider === 'qwen') {
+              activeLLM = 'Alibaba Qwen';
+            } else {
+              activeLLM = 'Google Gemini';
+            }
+          } else {
+            const activeRes = await fetchWithTimeout(`${apiBaseUrl}/bots/active`);
+            if (activeRes.ok) {
+              const activeBot = await activeRes.json();
+              if (activeBot) {
+                activeBotName = activeBot.name;
+                activeModel = activeBot.model;
+                activeBotsCount = 1;
+                if (activeBot.provider === 'qwen') {
+                  activeLLM = 'Alibaba Qwen';
+                } else {
+                  activeLLM = 'Google Gemini';
+                }
+              }
+            }
+          }
+        }
+      } catch (apiErr) {
+        console.error("Gagal tes FastAPI status:", apiErr);
+      }
+
+      setSystemStatus(prev => ({
+        ...prev,
+        fastapi: fastapiStatus,
+        llmProvider: activeLLM,
+        activeModel: activeModel,
+        activeBotName: activeBotName,
+        activeBotsCount: activeBotsCount,
+        allSystemsGo: fastapiStatus === 'Connected'
+      }));
+    };
+
     const fetchStats = async () => {
       try {
         setLoading(true);
@@ -62,111 +134,38 @@ export default function DashboardHome() {
           setAdminEmail(session.user.email);
         }
         
-        const { count: botsCount } = await supabase
-          .from('bots')
-          .select('*', { count: 'exact', head: true });
-          
-        const { count: knowledgeCount } = await supabase
-          .from('destinasi_wisata')
-          .select('*', { count: 'exact', head: true });
-
-        const { count: greetingsCount } = await supabase
-          .from('greetings_faq')
-          .select('*', { count: 'exact', head: true });
-
-        const { data: feedbackData } = await supabase
-          .from('chat_feedback')
-          .select('id, rating, user_query, ai_response, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        // Calculate all feedback for satisfaction rate
-        const { data: allFeedback } = await supabase
-          .from('chat_feedback')
-          .select('rating');
+        // Fetch database stats in parallel for speed
+        const [botsRes, knowledgeRes, greetingsRes, feedbackRes, allFeedbackRes] = await Promise.all([
+          supabase.from('bots').select('*', { count: 'exact', head: true }),
+          supabase.from('destinasi_wisata').select('*', { count: 'exact', head: true }),
+          supabase.from('greetings_faq').select('*', { count: 'exact', head: true }),
+          supabase.from('chat_feedback').select('id, rating, user_query, ai_response, created_at').order('created_at', { ascending: false }).limit(5),
+          supabase.from('chat_feedback').select('rating')
+        ]);
 
         const endTime = performance.now();
         const dbLatency = Math.round(endTime - startTime);
 
         let pos = 0;
         let neg = 0;
-        if (allFeedback) {
-          allFeedback.forEach(item => {
+        if (allFeedbackRes.data) {
+          allFeedbackRes.data.forEach(item => {
             if (item.rating === 1) pos++;
             else if (item.rating === -1) neg++;
           });
         }
 
-        setRecentFeedback(feedbackData || []);
-
+        setRecentFeedback(feedbackRes.data || []);
         setStats({
-          botsCount: botsCount || 0,
-          knowledgeCount: knowledgeCount || 0,
-          greetingsCount: greetingsCount || 0,
-          feedbackCount: allFeedback?.length || 0,
+          botsCount: botsRes.count || 0,
+          knowledgeCount: knowledgeRes.count || 0,
+          greetingsCount: greetingsRes.count || 0,
+          feedbackCount: allFeedbackRes.data?.length || 0,
           positiveFeedback: pos,
           negativeFeedback: neg
         });
 
-        // Test FastAPI connection and get active LLM provider details
-        let fastapiStatus = 'Offline';
-        let activeLLM = 'Tidak Terhubung';
-        let activeModel = '-';
-        let activeBotName = '-';
-        let activeBotsCount = 0;
-
-        try {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-          const allBotsRes = await fetch(`${apiBaseUrl}/bots`);
-          if (allBotsRes.ok) {
-            fastapiStatus = 'Connected';
-            const allBots = await allBotsRes.json();
-            const activeBots = allBots.filter(b => b.is_active);
-            activeBotsCount = activeBots.length;
-
-            if (activeBotsCount > 0) {
-              const mainBot = activeBots[0];
-              activeBotName = mainBot.name;
-              activeModel = mainBot.model;
-              if (mainBot.provider === 'qwen') {
-                activeLLM = 'Alibaba Qwen';
-              } else {
-                activeLLM = 'Google Gemini';
-              }
-            } else {
-              const activeRes = await fetch(`${apiBaseUrl}/bots/active`);
-              if (activeRes.ok) {
-                const activeBot = await activeRes.json();
-                if (activeBot) {
-                  activeBotName = activeBot.name;
-                  activeModel = activeBot.model;
-                  activeBotsCount = 1;
-                  if (activeBot.provider === 'qwen') {
-                    activeLLM = 'Alibaba Qwen';
-                  } else {
-                    activeLLM = 'Google Gemini';
-                  }
-                }
-              }
-            }
-          }
-        } catch (apiErr) {
-          console.error("Gagal tes FastAPI status:", apiErr);
-        }
-
-        setSystemStatus({
-          fastapi: fastapiStatus,
-          supabase: 'Online',
-          supabasePing: dbLatency,
-          embedding: 'Matryoshka 512',
-          llmProvider: activeLLM,
-          activeModel: activeModel,
-          activeBotName: activeBotName,
-          activeBotsCount: activeBotsCount,
-          allSystemsGo: fastapiStatus === 'Connected'
-        });
-
-        // 5. Query chat logs of the last 7 days for the dynamic chart
+        // Query chat logs for chart
         try {
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -203,7 +202,7 @@ export default function DashboardHome() {
             return {
               day: day.dayLabel,
               value: day.count,
-              height: `${Math.max(percentage, 8)}%` // minimum 8% for aesthetic visibility
+              height: `${Math.max(percentage, 8)}%`
             };
           });
 
@@ -212,7 +211,17 @@ export default function DashboardHome() {
           console.error("Gagal memuat chart data:", chartErr);
         }
 
+        setSystemStatus(prev => ({
+          ...prev,
+          supabase: 'Online',
+          supabasePing: dbLatency
+        }));
+
+        // Stop loading spinner immediately so the UI is active
         setLoading(false);
+
+        // Load API status asynchronously in background
+        fetchFastAPIStatus(dbLatency);
       } catch (err) {
         console.error("Gagal memuat statistik dashboard:", err);
         setSystemStatus(prev => ({
