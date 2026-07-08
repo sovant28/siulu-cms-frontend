@@ -70,6 +70,8 @@ function AddKnowledgeBaseForm() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
+  const isFood = entityType === 'restoran' && (destId.trim().startsWith('FOOD-') || searchParams.get('type') === 'kuliner');
+
   const processAndUploadImage = async (file) => {
     setUploadingImage(true);
     try {
@@ -174,6 +176,9 @@ function AddKnowledgeBaseForm() {
   };
 
   const getDescriptionPlaceholder = () => {
+    if (isFood) {
+      return "Tuliskan penjelasan lengkap kuliner khas: sejarah asal-usul, arti nama masakan, penyajian dalam upacara adat, serta keunikan rasanya agar AI dapat menjelaskannya dengan lengkap dan akurat...";
+    }
     switch (entityType) {
       case 'hotel':
         return "Tuliskan penjelasan lengkap akomodasi: tipe kamar yang tersedia, fasilitas utama (kolam renang, wifi, sarapan), kapasitas, range tarif kamar, akses jalan, dan info reservasi agar AI dapat merekomendasikannya dengan tepat...";
@@ -422,8 +427,6 @@ function AddKnowledgeBaseForm() {
 
   if (loading) return null;
 
-  const isFood = entityType === 'restoran' && (destId.trim().startsWith('FOOD-') || searchParams.get('type') === 'kuliner');
-
   return (
     <div className="flex flex-col w-full font-sans pb-10 space-y-6">
       <div className="flex items-center space-x-4">
@@ -505,15 +508,17 @@ function AddKnowledgeBaseForm() {
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Nama {entityType === 'hotel' ? 'Hotel / Akomodasi' : entityType === 'restoran' ? 'Restoran / Rumah Makan' : entityType === 'event' ? 'Event / Acara' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
-              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Hotel Pantan Makale' : entityType === 'restoran' ? 'Depot Idaman Makale' : entityType === 'event' ? 'Festival Seni Budaya Ma\'nene\' Gandasil' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Objek Wisata Buntu Burake / Situs Makam Pahat Lemo\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">
+                {isFood ? 'Nama Kuliner / Makanan Tradisional *' : entityType === 'hotel' ? 'Nama Hotel / Akomodasi *' : entityType === 'restoran' ? 'Nama Restoran / Rumah Makan *' : entityType === 'event' ? 'Nama Event / Acara *' : entityType === 'darurat' ? 'Nama Info / Kontak Darurat *' : 'Nama Tempat Wisata *'}
+              </label>
+              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${isFood ? 'Pa\'piong Ayam / Pantollo Pamarrasan / Kopi Arabika Toraja' : entityType === 'hotel' ? 'Hotel Pantan Makale' : entityType === 'restoran' ? 'Depot Idaman Makale' : entityType === 'event' ? 'Festival Seni Budaya Ma\'nene\' Gandasil' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Objek Wisata Buntu Burake / Situs Makam Pahat Lemo\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Wilayah / Lokasi *</label>
-              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Makale, Tana Toraja / Sangalla, Tana Toraja" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+            <div className={isFood ? "md:col-span-2 space-y-2" : "space-y-2"}>
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">{isFood ? 'Sentra Asal / Wilayah Tana Toraja *' : 'Wilayah / Lokasi *'}</label>
+              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder={isFood ? "Contoh: Sangalla, Tana Toraja (Wilayah Asal/Sentra)" : "Contoh: Makale, Tana Toraja / Sangalla, Tana Toraja"} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
             {entityType === 'destinasi' && (
               <div className="space-y-2">
@@ -534,7 +539,7 @@ function AddKnowledgeBaseForm() {
                 </select>
               </div>
             )}
-            {entityType !== 'destinasi' && (
+            {entityType !== 'destinasi' && !isFood && (
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kontak Info / Telepon</label>
                 <input type="text" value={destContact} onChange={(e) => setDestContact(e.target.value)} placeholder="0812-3456-7890 / @instagram" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
@@ -825,7 +830,7 @@ function AddKnowledgeBaseForm() {
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>Simpan Entitas {entityType}</span>
+                  <span>Simpan Entitas {isFood ? 'kuliner' : entityType}</span>
                 </>
               )}
             </button>
