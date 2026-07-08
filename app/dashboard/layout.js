@@ -19,7 +19,9 @@ import {
   Hotel,
   Utensils,
   Calendar,
-  ShieldAlert
+  ShieldAlert,
+  BookOpen,
+  FileText
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
@@ -125,84 +127,112 @@ export default function DashboardLayout({ children }) {
     name: "Dashboard",
     path: "/dashboard",
     icon: LayoutDashboard,
-    allowed: ["super_admin", "admin_konten", "validator", "admin_bot", "analyst"]
+    allowed: ["super_admin", "admin_konten", "validator", "admin_bot", "analyst"],
+    category: "Navigasi Utama"
   });
 
   menuItems.push({
     name: "Pengaturan Bot",
     path: "/dashboard/bot",
     icon: Bot,
-    allowed: ["super_admin", "admin_bot"]
-  });
-
-  menuItems.push({
-    name: "Pengujian Bot",
-    path: "/dashboard/sandbox",
-    icon: MessageSquare,
-    allowed: ["super_admin", "validator", "admin_bot"]
-  });
-
-  menuItems.push({
-    name: "Tempat Wisata",
-    path: "/dashboard/destinasi",
-    icon: Map,
-    allowed: ["super_admin", "admin_konten"]
-  });
-
-  menuItems.push({
-    name: "Hotel & Akomodasi",
-    path: "/dashboard/hotel",
-    icon: Hotel,
-    allowed: ["super_admin", "admin_konten"]
-  });
-
-  menuItems.push({
-    name: "Restoran & Cafe",
-    path: "/dashboard/resto",
-    icon: Utensils,
-    allowed: ["super_admin", "admin_konten"]
-  });
-
-  menuItems.push({
-    name: "Kuliner Tradisional",
-    path: "/dashboard/kuliner",
-    icon: Database,
-    allowed: ["super_admin", "admin_konten"]
-  });
-
-  menuItems.push({
-    name: "Event & Ritual Adat",
-    path: "/dashboard/event",
-    icon: Calendar,
-    allowed: ["super_admin", "admin_konten"]
-  });
-
-  menuItems.push({
-    name: "Informasi & Darurat",
-    path: "/dashboard/info",
-    icon: ShieldAlert,
-    allowed: ["super_admin", "admin_konten"]
+    allowed: ["super_admin", "admin_bot"],
+    category: "Konfigurasi Bot"
   });
 
   menuItems.push({
     name: "Greetings & FAQ",
     path: "/dashboard/faq",
     icon: HelpCircle,
-    allowed: ["super_admin", "admin_konten", "admin_bot"]
+    allowed: ["super_admin", "admin_konten", "admin_bot"],
+    category: "Konfigurasi Bot"
+  });
+
+  menuItems.push({
+    name: "Pengujian Bot",
+    path: "/dashboard/sandbox",
+    icon: MessageSquare,
+    allowed: ["super_admin", "validator", "admin_bot"],
+    category: "Konfigurasi Bot"
+  });
+
+  menuItems.push({
+    name: "Tempat Wisata",
+    path: "/dashboard/destinasi",
+    icon: Map,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
+  });
+
+  menuItems.push({
+    name: "Hotel & Akomodasi",
+    path: "/dashboard/hotel",
+    icon: Hotel,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
+  });
+
+  menuItems.push({
+    name: "Restoran & Cafe",
+    path: "/dashboard/resto",
+    icon: Utensils,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
+  });
+
+  menuItems.push({
+    name: "Kuliner Tradisional",
+    path: "/dashboard/kuliner",
+    icon: Database,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
+  });
+
+  menuItems.push({
+    name: "Event & Ritual Adat",
+    path: "/dashboard/event",
+    icon: Calendar,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
+  });
+
+  menuItems.push({
+    name: "Informasi & Darurat",
+    path: "/dashboard/info",
+    icon: ShieldAlert,
+    allowed: ["super_admin", "admin_konten"],
+    category: "Basis Pengetahuan RAG"
   });
 
   menuItems.push({
     name: "Audit Feedback",
     path: "/dashboard/feedback",
     icon: ThumbsUp,
-    allowed: ["super_admin", "validator", "analyst"]
+    allowed: ["super_admin", "validator", "analyst"],
+    category: "Keamanan & Analitik"
   });
 
   menuItems.push({
     name: "Manajemen Tim",
     path: "/dashboard/users",
     icon: Users,
-    allowed: ["super_admin"]
+    allowed: ["super_admin"],
+    category: "Keamanan & Analitik"
+  });
+
+  menuItems.push({
+    name: "Dokumentasi Console",
+    path: "/dashboard/documentation",
+    icon: BookOpen,
+    allowed: ["super_admin", "admin_konten", "validator", "admin_bot", "analyst"],
+    category: "Informasi & Rilis"
+  });
+
+  menuItems.push({
+    name: "Catatan Rilis",
+    path: "/dashboard/changelog",
+    icon: FileText,
+    allowed: ["super_admin", "admin_konten", "validator", "admin_bot", "analyst"],
+    category: "Informasi & Rilis"
   });
 
   const filteredMenu = menuItems.filter(item => item.allowed.includes(role));
@@ -291,23 +321,42 @@ export default function DashboardLayout({ children }) {
             </button>
           </div>
 
-          <nav className="p-4 space-y-1.5">
-            {filteredMenu.map((item, idx) => {
-              const IconComp = item.icon;
-              const isActive = activePath === item.path;
+          <nav className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-160px)] no-scrollbar">
+            {[
+              { name: "Navigasi Utama" },
+              { name: "Basis Pengetahuan RAG" },
+              { name: "Konfigurasi Bot" },
+              { name: "Keamanan & Analitik" },
+              { name: "Informasi & Rilis" }
+            ].map((cat, catIdx) => {
+              const catItems = filteredMenu.filter(item => item.category === cat.name);
+              if (catItems.length === 0) return null;
               return (
-                <Link 
-                  key={idx} 
-                  href={item.path}
-                  className={`flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer border ${
-                    isActive 
-                      ? 'bg-orange-50/60 text-[#F35A05] border-orange-100/50' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent'
-                  }`}
-                >
-                  <IconComp className={`w-4.5 h-4.5 ${isActive ? 'text-[#F35A05]' : 'text-slate-400'}`} />
-                  <span>{item.name}</span>
-                </Link>
+                <div key={catIdx} className="space-y-1">
+                  <span className="block text-[9px] font-black text-slate-400 tracking-wider pl-4">
+                    {cat.name}
+                  </span>
+                  <div className="space-y-0.5">
+                    {catItems.map((item, idx) => {
+                      const IconComp = item.icon;
+                      const isActive = activePath === item.path;
+                      return (
+                        <Link 
+                          key={idx} 
+                          href={item.path}
+                          className={`flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer border ${
+                            isActive 
+                              ? 'bg-orange-50/60 text-[#F35A05] border-orange-100/50' 
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent'
+                          }`}
+                        >
+                          <IconComp className={`w-4 h-4 ${isActive ? 'text-[#F35A05]' : 'text-slate-400'}`} />
+                          <span>{item.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </nav>
@@ -326,6 +375,11 @@ export default function DashboardLayout({ children }) {
                 {getRoleLabel(role)}
               </span>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between px-2 pt-1 text-[9px] font-bold text-slate-400">
+            <span>Siulu' Console</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200/60 text-slate-500">v1.4.0</span>
           </div>
 
           <button 
@@ -358,10 +412,11 @@ export default function DashboardLayout({ children }) {
               {pathname === '/dashboard' ? 'Ringkasan Sistem' :
                pathname === '/dashboard/bot' ? 'Konfigurasi Virtual Assistant' :
                pathname === '/dashboard/sandbox' ? 'Pengujian Bot (Sandbox)' :
-               pathname === '/dashboard/knowledge' ? 'Basis Pengetahuan (AI RAG)' :
                pathname === '/dashboard/faq' ? 'Greetings & FAQ 0-Token' :
                pathname === '/dashboard/feedback' ? 'Audit Evaluasi & Feedback' :
-               pathname === '/dashboard/users' ? 'Manajemen Hak Akses Tim' : 'Dashboard'}
+               pathname === '/dashboard/users' ? 'Manajemen Hak Akses Tim' :
+               pathname === '/dashboard/documentation' ? 'Dokumentasi Panduan Console' :
+               pathname === '/dashboard/changelog' ? 'Catatan Rilis & Versi' : 'Manajemen RAG'}
             </h2>
           </div>
           </div>
