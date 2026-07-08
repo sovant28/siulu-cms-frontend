@@ -219,6 +219,27 @@ export default function EditBot({ params }) {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700">Custom API Key (Opsional)</label>
+              <input 
+                type="password" 
+                value={botApiKey} onChange={(e) => setBotApiKey(e.target.value)}
+                placeholder="Biarkan kosong jika pakai dari .env"
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700">Custom Base URL (Opsional)</label>
+              <input 
+                type="text" 
+                value={botBaseUrl} onChange={(e) => setBotBaseUrl(e.target.value)}
+                placeholder="https://api.openai.com/v1"
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+              />
+            </div>
+          </div>
+
           <div className="pt-6 mt-6 border-t border-slate-200">
             <button 
               type="submit" disabled={formLoading}
