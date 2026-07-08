@@ -54,20 +54,20 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchFastAPIStatus = async (dbLatency) => {
       let fastapiStatus = 'Offline';
-      let activeLLM = 'Tidak Terhubung';
-      let activeModel = '-';
-      let activeBotName = '-';
-      let activeBotsCount = 0;
 
       try {
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
         
-        // Timeout helper to abort requests that hang
-        const fetchWithTimeout = async (url, timeout = 2500) => {
+        // Timeout helper with no-cors mode to bypass Hugging Face proxy blocks
+        const pingWithTimeout = async (url, timeout = 2500) => {
           const controller = new AbortController();
           const id = setTimeout(() => controller.abort(), timeout);
           try {
-            const response = await fetch(url, { signal: controller.signal });
+            // mode: 'no-cors' allows us to ping cross-origin servers without CORS preflight blocks
+            const response = await fetch(url, { 
+              mode: 'no-cors',
+              signal: controller.signal 
+            });
             clearTimeout(id);
             return response;
           } catch (e) {
@@ -76,39 +76,10 @@ export default function DashboardHome() {
           }
         };
 
-        const allBotsRes = await fetchWithTimeout(`${apiBaseUrl}/bots`);
-        if (allBotsRes.ok) {
-          fastapiStatus = 'Connected';
-          const allBots = await allBotsRes.json();
-          const activeBots = allBots.filter(b => b.is_active);
-          activeBotsCount = activeBots.length;
-
-          if (activeBotsCount > 0) {
-            const mainBot = activeBots[0];
-            activeBotName = mainBot.name;
-            activeModel = mainBot.model;
-            if (mainBot.provider === 'qwen') {
-              activeLLM = 'Alibaba Qwen';
-            } else {
-              activeLLM = 'Google Gemini';
-            }
-          } else {
-            const activeRes = await fetchWithTimeout(`${apiBaseUrl}/bots/active`);
-            if (activeRes.ok) {
-              const activeBot = await activeRes.json();
-              if (activeBot) {
-                activeBotName = activeBot.name;
-                activeModel = activeBot.model;
-                activeBotsCount = 1;
-                if (activeBot.provider === 'qwen') {
-                  activeLLM = 'Alibaba Qwen';
-                } else {
-                  activeLLM = 'Google Gemini';
-                }
-              }
-            }
-          }
-        }
+        // Ping backend root
+        const backendRootUrl = apiBaseUrl.replace('/api', '');
+        await pingWithTimeout(backendRootUrl);
+        fastapiStatus = 'Connected';
       } catch (apiErr) {
         console.error("Gagal tes FastAPI status:", apiErr);
       }
@@ -116,10 +87,6 @@ export default function DashboardHome() {
       setSystemStatus(prev => ({
         ...prev,
         fastapi: fastapiStatus,
-        llmProvider: activeLLM,
-        activeModel: activeModel,
-        activeBotName: activeBotName,
-        activeBotsCount: activeBotsCount,
         allSystemsGo: fastapiStatus === 'Connected'
       }));
     };
@@ -134,13 +101,14 @@ export default function DashboardHome() {
           setAdminEmail(session.user.email);
         }
         
-        // Fetch database stats in parallel for speed
-        const [botsRes, knowledgeRes, greetingsRes, feedbackRes, allFeedbackRes] = await Promise.all([
+        // Fetch database stats and active bot from Supabase in parallel
+        const [botsRes, knowledgeRes, greetingsRes, feedbackRes, allFeedbackRes, activeBotRes] = await Promise.all([
           supabase.from('bots').select('*', { count: 'exact', head: true }),
           supabase.from('destinasi_wisata').select('*', { count: 'exact', head: true }),
           supabase.from('greetings_faq').select('*', { count: 'exact', head: true }),
           supabase.from('chat_feedback').select('id, rating, user_query, ai_response, created_at').order('created_at', { ascending: false }).limit(5),
-          supabase.from('chat_feedback').select('rating')
+          supabase.from('chat_feedback').select('rating'),
+          supabase.from('bots').select('name, model, provider, is_active').eq('is_active', true).limit(1)
         ]);
 
         const endTime = performance.now();
@@ -153,6 +121,24 @@ export default function DashboardHome() {
             if (item.rating === 1) pos++;
             else if (item.rating === -1) neg++;
           });
+        }
+
+        // Parse active bot details directly from Supabase
+        let activeLLM = 'Tidak Terhubung';
+        let activeModel = '-';
+        let activeBotName = '-';
+        let activeBotsCount = 0;
+
+        if (activeBotRes.data && activeBotRes.data.length > 0) {
+          const mainBot = activeBotRes.data[0];
+          activeBotName = mainBot.name;
+          activeModel = mainBot.model;
+          activeBotsCount = 1;
+          if (mainBot.provider === 'qwen') {
+            activeLLM = 'Alibaba Qwen';
+          } else {
+            activeLLM = 'Google Gemini';
+          }
         }
 
         setRecentFeedback(feedbackRes.data || []);
@@ -214,7 +200,11 @@ export default function DashboardHome() {
         setSystemStatus(prev => ({
           ...prev,
           supabase: 'Online',
-          supabasePing: dbLatency
+          supabasePing: dbLatency,
+          llmProvider: activeLLM,
+          activeModel: activeModel,
+          activeBotName: activeBotName,
+          activeBotsCount: activeBotsCount
         }));
 
         // Stop loading spinner immediately so the UI is active
