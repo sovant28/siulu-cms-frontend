@@ -246,7 +246,7 @@ export default function DashboardLayout({ children }) {
             ⚠️
           </div>
           <div className="space-y-2 text-center">
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest pl-1">Akses Halaman Ditolak</h2>
+            <h2 className="text-sm font-bold text-slate-800 tracking-widest pl-1">Akses Halaman Ditolak</h2>
             <p className="text-xs text-slate-500 font-medium leading-relaxed">
               Peran Anda ({getRoleLabel(role)}) tidak memiliki izin untuk mengakses halaman ini.
             </p>
@@ -274,10 +274,10 @@ export default function DashboardLayout({ children }) {
       )}
 
       {/* SIDEBAR LEFT */}
-      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-white border-r border-slate-400 flex flex-col justify-between h-full z-30 transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between h-full z-30 transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         
         <div>
-          <div className="px-6 py-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-6 py-6 border-b border-slate-100/80 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-[#F35A05] font-black text-xl tracking-tighter">Siulu'</span>
               <span className="h-1.5 w-1.5 rounded-full bg-[#F35A05] animate-pulse"></span>
@@ -291,7 +291,7 @@ export default function DashboardLayout({ children }) {
             </button>
           </div>
 
-          <nav className="p-4 space-y-1">
+          <nav className="p-4 space-y-1.5">
             {filteredMenu.map((item, idx) => {
               const IconComp = item.icon;
               const isActive = activePath === item.path;
@@ -299,15 +299,12 @@ export default function DashboardLayout({ children }) {
                 <Link 
                   key={idx} 
                   href={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-medium transition cursor-pointer relative ${
+                  className={`flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer border ${
                     isActive 
-                      ? 'bg-orange-50/50 text-[#F35A05] font-bold' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'bg-orange-50/60 text-[#F35A05] border-orange-100/50' 
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-transparent'
                   }`}
                 >
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#F35A05] rounded-r-full"></div>
-                  )}
                   <IconComp className={`w-4.5 h-4.5 ${isActive ? 'text-[#F35A05]' : 'text-slate-400'}`} />
                   <span>{item.name}</span>
                 </Link>
@@ -316,9 +313,9 @@ export default function DashboardLayout({ children }) {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-100 space-y-3">
+        <div className="p-4 border-t border-slate-100/80 space-y-3">
           <div className="flex items-center space-x-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200/80 flex items-center justify-center">
               <UserCheck className="w-4 h-4 text-slate-500" />
             </div>
             <div className="flex-1 min-w-0">
@@ -333,7 +330,7 @@ export default function DashboardLayout({ children }) {
 
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition cursor-pointer active:scale-[0.98]"
+            className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-50/50 border border-transparent hover:border-red-100/30 transition cursor-pointer active:scale-[0.98]"
           >
             <LogOut className="w-4.5 h-4.5 text-red-400" />
             <span>Keluar Sesi</span>
@@ -345,10 +342,10 @@ export default function DashboardLayout({ children }) {
       {/* RIGHT MAIN CONTENT */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white">
         
-        <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-slate-400 px-5 md:px-8 flex items-center justify-between z-10">
+        <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-5 md:px-8 flex items-center justify-between z-10">
           <div className="flex items-center space-x-3">
             <button 
-              className="md:hidden p-2 -ml-2 text-slate-500 hover:text-[#F35A05] transition"
+              className="md:hidden p-2 -mr-2 text-slate-500 hover:text-[#F35A05] transition"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu className="w-5 h-5" />
@@ -370,7 +367,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           <div className="flex items-center space-x-3">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 tracking-wider">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100/60 tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
               Connected
             </span>
