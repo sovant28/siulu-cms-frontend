@@ -99,22 +99,20 @@ export default function BotList() {
     if (!confirm("Apakah Anda yakin ingin menghapus chatbot ini beserta seluruh datanya?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/bots/${botId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const { error } = await supabase
+        .from('bots')
+        .delete()
+        .eq('id', botId);
 
-      if (res.ok) {
+      if (!error) {
         alert("Bot berhasil dihapus!");
         await fetchBots();
       } else {
-        alert("Gagal menghapus bot.");
+        alert(`Gagal menghapus bot: ${error.message}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan koneksi saat menghapus bot.");
+      alert("Terjadi kesalahan koneksi database.");
     }
   };
 

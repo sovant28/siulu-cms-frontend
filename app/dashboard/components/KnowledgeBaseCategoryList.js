@@ -117,22 +117,23 @@ export default function KnowledgeBaseCategoryList({
       alert("Akses ditolak: Peran Anda tidak diizinkan mengelola pengetahuan RAG!");
       return;
     }
-    if (!confirm("Apakah Anda yakin ingin menghapus data ini beserta representasi vektor embedding-nya?")) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus data ini beserta seluruh data RAG-nya?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/knowledge/destinasi/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const { error } = await supabase
+        .from('destinasi_wisata')
+        .delete()
+        .eq('id', id);
 
-      if (res.ok) {
-        alert("Dokumen dan RAG embeddings sukses dihapus!");
+      if (!error) {
+        alert("Dokumen berhasil dihapus secara permanen!");
         await fetchDestinations();
       } else {
-        alert("Gagal menghapus dokumen.");
+        alert(`Gagal menghapus dokumen: ${error.message}`);
       }
     } catch (err) {
       console.error(err);
+      alert("Terjadi kesalahan koneksi database.");
     }
   };
 

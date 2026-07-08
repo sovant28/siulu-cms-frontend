@@ -114,17 +114,22 @@ export default function FeedbackList() {
     if (!confirm("Apakah Anda yakin ingin menghapus data feedback ini permanen?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/bots/feedback/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
+      const { error } = await supabase
+        .from('chat_logs_temporary')
+        .update({
+          feedback_type: null,
+          feedback_note: null
+        })
+        .eq('id', id);
+
+      if (!error) {
         await fetchFeedbacks();
       } else {
-        alert("Gagal menghapus feedback.");
+        alert(`Gagal menghapus feedback: ${error.message}`);
       }
     } catch (err) {
       console.error(err);
+      alert("Terjadi kesalahan koneksi database.");
     }
   };
 

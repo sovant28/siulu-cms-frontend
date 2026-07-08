@@ -198,15 +198,19 @@ export default function FaqList() {
     }
     if (!confirm("Hapus pola sapaan ini?")) return;
     try {
-      const res = await fetch(`${API_URL}/greetings/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
+      const { error } = await supabase
+        .from('greetings_faq')
+        .delete()
+        .eq('id', id);
+
+      if (!error) {
         await fetchGreetings();
+      } else {
+        alert(`Gagal menghapus sapaan: ${error.message}`);
       }
     } catch (err) {
       console.error(err);
+      alert("Terjadi kesalahan koneksi database.");
     }
   };
 
