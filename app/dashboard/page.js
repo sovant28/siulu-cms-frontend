@@ -34,6 +34,9 @@ export default function DashboardHome() {
     supabasePing: null,
     embedding: 'Matryoshka 512',
     llmProvider: 'Google Gemini',
+    activeModel: 'Loading...',
+    activeBotName: 'Loading...',
+    activeBotsCount: 0,
     allSystemsGo: true
   });
 
@@ -105,20 +108,45 @@ export default function DashboardHome() {
           negativeFeedback: neg
         });
 
-        // Test FastAPI connection and get active LLM provider
+        // Test FastAPI connection and get active LLM provider details
         let fastapiStatus = 'Offline';
         let activeLLM = 'Google Gemini';
+        let activeModel = 'gemini-1.5-flash';
+        let activeBotName = 'Mebali AI';
+        let activeBotsCount = 0;
+
         try {
           const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-          const apiRes = await fetch(`${apiBaseUrl}/bots/active`);
-          if (apiRes.ok) {
+          const allBotsRes = await fetch(`${apiBaseUrl}/bots`);
+          if (allBotsRes.ok) {
             fastapiStatus = 'Connected';
-            const activeBot = await apiRes.json();
-            if (activeBot) {
-              if (activeBot.provider === 'qwen') {
+            const allBots = await allBotsRes.json();
+            const activeBots = allBots.filter(b => b.is_active);
+            activeBotsCount = activeBots.length;
+
+            if (activeBotsCount > 0) {
+              const mainBot = activeBots[0];
+              activeBotName = mainBot.name;
+              activeModel = mainBot.model;
+              if (mainBot.provider === 'qwen') {
                 activeLLM = 'Alibaba Qwen';
               } else {
                 activeLLM = 'Google Gemini';
+              }
+            } else {
+              const activeRes = await fetch(`${apiBaseUrl}/bots/active`);
+              if (activeRes.ok) {
+                const activeBot = await activeRes.json();
+                if (activeBot) {
+                  activeBotName = activeBot.name;
+                  activeModel = activeBot.model;
+                  activeBotsCount = 1;
+                  if (activeBot.provider === 'qwen') {
+                    activeLLM = 'Alibaba Qwen';
+                  } else {
+                    activeLLM = 'Google Gemini';
+                  }
+                }
               }
             }
           }
@@ -132,6 +160,9 @@ export default function DashboardHome() {
           supabasePing: dbLatency,
           embedding: 'Matryoshka 512',
           llmProvider: activeLLM,
+          activeModel: activeModel,
+          activeBotName: activeBotName,
+          activeBotsCount: activeBotsCount,
           allSystemsGo: fastapiStatus === 'Connected'
         });
 
@@ -456,6 +487,22 @@ export default function DashboardHome() {
                   <span className="text-slate-500 font-medium">LLM Provider</span>
                 </div>
                 <span className="font-bold text-slate-800">{systemStatus.llmProvider}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                  <span className="text-slate-500 font-medium">Model AI Aktif</span>
+                </div>
+                <span className="font-bold text-slate-800 font-mono text-[11px]">{systemStatus.activeModel}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                  <span className="text-slate-500 font-medium">Bot Virtual</span>
+                </div>
+                <span className="font-bold text-slate-800">
+                  {systemStatus.activeBotsCount > 1 ? `${systemStatus.activeBotsCount} Bot Aktif` : systemStatus.activeBotName}
+                </span>
               </div>
             </div>
           </div>
