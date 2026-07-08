@@ -173,6 +173,21 @@ function AddKnowledgeBaseForm() {
     }
   };
 
+  const getDescriptionPlaceholder = () => {
+    switch (entityType) {
+      case 'hotel':
+        return "Tuliskan penjelasan lengkap akomodasi: tipe kamar yang tersedia, fasilitas utama (kolam renang, wifi, sarapan), kapasitas, range tarif kamar, akses jalan, dan info reservasi agar AI dapat merekomendasikannya dengan tepat...";
+      case 'restoran':
+        return "Tuliskan penjelasan lengkap tempat makan: menu andalan (halal/non-halal), range harga makanan, suasana restoran, fasilitas, dan rute lokasi agar AI dapat mengarahkan wisatawan dengan tepat...";
+      case 'event':
+        return "Tuliskan penjelasan lengkap event: makna adat/ritual yang diselenggarakan, jadwal pelaksanaan, lokasi detail venue, harga tiket masuk, dan tata tertib pengunjung agar AI dapat menjelaskannya dengan lengkap...";
+      case 'darurat':
+        return "Tuliskan penjelasan lengkap layanan darurat: jenis layanan/bantuan, nomor telepon aktif, alamat fisik, dan prosedur saat keadaan darurat agar AI dapat memberikan info cepat...";
+      default:
+        return "Tuliskan penjelasan lengkap destinasi: sejarah asal-usul, nilai adat/kebudayaan, keunikan arsitektur Tongkonan, rute jalan, dan informasi penting lainnya agar AI dapat menjelaskan secara detail dan akurat...";
+    }
+  };
+
   // Hotel Specific
   const [hotelStars, setHotelStars] = useState('3');
   const [hotelPrice, setHotelPrice] = useState('');
@@ -549,7 +564,7 @@ function AddKnowledgeBaseForm() {
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Harga Per Malam</label>
-                <input type="text" value={hotelPrice} onChange={(e) => setHotelPrice(e.target.value)} placeholder="Mulai dari Rp 450.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+                <input type="text" value={hotelPrice} onChange={(e) => setHotelPrice(e.target.value)} placeholder="Contoh: Rp 350.000 - Rp 950.000 / malam" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Check-In</label>
@@ -619,7 +634,7 @@ function AddKnowledgeBaseForm() {
             <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Deskripsi Lengkap (Materi Utama AI) *</label>
             <textarea 
               required rows={6} value={destDescription} onChange={(e) => setDestDescription(e.target.value)}
-              placeholder="Tuliskan penjelasan lengkap destinasi: sejarah asal-usul, nilai adat/kebudayaan, keunikan arsitektur Tongkonan, rute jalan, dan informasi penting lainnya agar AI dapat menjelaskan secara detail dan akurat..."
+              placeholder={getDescriptionPlaceholder()}
               className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y min-h-[120px]"
             />
           </div>
