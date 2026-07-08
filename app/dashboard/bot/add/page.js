@@ -18,6 +18,7 @@ export default function AddBot() {
   const [botTemp, setBotTemp] = useState(0.7);
   const [botApiKey, setBotApiKey] = useState('');
   const [botBaseUrl, setBotBaseUrl] = useState('');
+  const [botGreetingsModel, setBotGreetingsModel] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
@@ -61,7 +62,8 @@ export default function AddBot() {
       temperature: parseFloat(botTemp),
       provider: botProvider,
       api_key: botApiKey || null,
-      base_url: botBaseUrl || null
+      base_url: botBaseUrl || null,
+      greetings_model: botGreetingsModel || null
     };
 
     try {
@@ -212,6 +214,21 @@ export default function AddBot() {
                 placeholder="https://api.openai.com/v1"
                 className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700">Greetings Model Name (Opsional)</label>
+              <input 
+                type="text" 
+                value={botGreetingsModel} onChange={(e) => setBotGreetingsModel(e.target.value)}
+                placeholder="Model murah untuk sapaan (misal: qwen-turbo)"
+                className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-[#F35A05] transition"
+              />
+            </div>
+            <div className="flex items-end text-xs text-slate-500 pb-3">
+              Model ini digunakan khusus menjawab sapaan basa-basi (greetings) untuk menghemat token model utama.
             </div>
           </div>
 
