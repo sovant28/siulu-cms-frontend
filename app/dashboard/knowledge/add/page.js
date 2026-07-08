@@ -199,6 +199,11 @@ function AddKnowledgeBaseForm() {
   const [restoHalal, setRestoHalal] = useState('halal');
   const [restoPriceRange, setRestoPriceRange] = useState('');
 
+  // Kuliner Tradisional Specific
+  const [culinaryRecipe, setCulinaryRecipe] = useState('');
+  const [culinarySteps, setCulinarySteps] = useState('');
+  const [culinaryVenues, setCulinaryVenues] = useState('');
+
   // Event Specific
   const [eventStartDate, setEventStartDate] = useState('');
   const [eventEndDate, setEventEndDate] = useState('');
@@ -340,13 +345,18 @@ function AddKnowledgeBaseForm() {
       };
     } else if (entityType === 'restoran') {
       finalCategory = 'kuliner';
-      finalHours = restoHours;
-      const subJenis = destId.trim().startsWith('FOOD-') ? 'makanan_khas' : 'tempat_makan';
+      const isFood = destId.trim().startsWith('FOOD-');
+      finalHours = isFood ? null : restoHours;
       finalBiaya = {
         ...finalBiaya,
-        "jenis": subJenis,
+        "jenis": isFood ? 'makanan_khas' : 'tempat_makan',
         "status_halal": restoHalal,
-        "range_harga": restoPriceRange
+        "range_harga": restoPriceRange,
+        ...(isFood && {
+          "resep": culinaryRecipe,
+          "cara_pembuatan": culinarySteps,
+          "tempat_memperoleh": culinaryVenues
+        })
       };
     } else if (entityType === 'event') {
       finalCategory = 'event';
@@ -577,25 +587,60 @@ function AddKnowledgeBaseForm() {
             </div>
           )}
 
-          {/* Form Restoran */}
+          {/* Form Restoran / Kuliner */}
           {entityType === 'restoran' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-amber-50/50 rounded-xl border border-amber-100">
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Jam Buka</label>
-                <input type="text" value={restoHours} onChange={(e) => setRestoHours(e.target.value)} placeholder="10:00 - 22:00" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan</label>
-                <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs">
-                  <option value="Halal Certified">Tersertifikasi Halal</option>
-                  <option value="Halal Friendly">Halal Friendly (No Pork/Lard)</option>
-                  <option value="Non-Halal">Menyediakan Menu Non-Halal</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Range Harga (Per Pax)</label>
-                <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Rp 25.000 - Rp 100.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
-              </div>
+            <div className="space-y-6">
+              {(destId.trim().startsWith('FOOD-') || searchParams.get('type') === 'kuliner') ? (
+                <div className="space-y-6 p-4 bg-orange-50/30 rounded-xl border border-orange-100/80">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan Hidangan</label>
+                      <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs">
+                        <option value="Halal Certified">Tersertifikasi Halal</option>
+                        <option value="Halal Friendly">Halal Friendly (Bebas Babi/Minyak Babi)</option>
+                        <option value="Non-Halal">Hidangan Non-Halal (Mengandung Babi/Lainnya)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kisaran Harga Hidangan</label>
+                      <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Contoh: Rp 35.000 - Rp 50.000 / porsi" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Bahan Utama & Resep</label>
+                      <textarea rows={3} value={culinaryRecipe} onChange={(e) => setCulinaryRecipe(e.target.value)} placeholder="Contoh: Daging ayam/babi, jahe, bawang merah, bawang putih, daun serai, kelapa parut, batang pisang muda (A'ri)..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] resize-y min-h-[80px]" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Cara Pembuatan (Singkat)</label>
+                      <textarea rows={3} value={culinarySteps} onChange={(e) => setCulinarySteps(e.target.value)} placeholder="Contoh: Langkah 1: Potong daging kecil-kecil. Langkah 2: Campurkan dengan bumbu kuning. Langkah 3: Masukkan ke bambu dan bakar..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] resize-y min-h-[80px]" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tempat Memperoleh / Penjual (ID Restoran, Pisahkan Koma)</label>
+                    <input type="text" value={culinaryVenues} onChange={(e) => setCulinaryVenues(e.target.value)} placeholder="Contoh: CUL-001, CUL-002 (Ketikkan ID kedai/warung yang terdaftar)" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-amber-50/50 rounded-xl border border-amber-100">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Jam Buka</label>
+                    <input type="text" value={restoHours} onChange={(e) => setRestoHours(e.target.value)} placeholder="Contoh: 10:00 - 22:00 WITA" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan</label>
+                    <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs">
+                      <option value="Halal Certified">Tersertifikasi Halal</option>
+                      <option value="Halal Friendly">Halal Friendly (No Pork/Lard)</option>
+                      <option value="Non-Halal">Menyediakan Menu Non-Halal</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Range Harga (Per Pax)</label>
+                    <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Contoh: Rp 25.000 - Rp 100.000" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
