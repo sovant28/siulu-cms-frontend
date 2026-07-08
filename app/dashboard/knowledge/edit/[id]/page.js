@@ -445,14 +445,14 @@ export default function EditKnowledgeBase({ params }) {
             </div>
             <div className="space-y-2">
               <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Nama {entityType === 'hotel' ? 'Hotel / Akomodasi' : entityType === 'restoran' ? 'Restoran / Rumah Makan' : entityType === 'event' ? 'Event / Acara' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
-              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Toraja Heritage Hotel' : entityType === 'restoran' ? 'Cafe Aras' : entityType === 'event' ? 'Festival Rambu Solo\' Sangalla' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Situs Makam Tebing Londa / Kete Kesu\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Hotel Pantan Makale' : entityType === 'restoran' ? 'Depot Idaman Makale' : entityType === 'event' ? 'Festival Seni Budaya Ma\'nene\' Gandasil' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Objek Wisata Buntu Burake / Situs Makam Pahat Lemo\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Wilayah / Lokasi *</label>
-              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Kesu\', Toraja Utara / Makale, Tana Toraja" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Makale, Tana Toraja / Sangalla, Tana Toraja" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
             {entityType === 'destinasi' && (
               <div className="space-y-2">
