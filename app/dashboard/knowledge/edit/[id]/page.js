@@ -658,9 +658,9 @@ export default function EditKnowledgeBase({ params }) {
             />
           </div>
 
-          {entityType !== 'darurat' && (
+          {!isFood && (
             <div>
-              {isFood ? (
+              {entityType === 'darurat' ? (
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
                   <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="Contoh: -2.9734, 119.8972" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
@@ -688,70 +688,68 @@ export default function EditKnowledgeBase({ params }) {
             </div>
           )}
 
-          {entityType !== 'darurat' && (
-            <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Foto Sampul / Banner Destinasi (Drag & Drop atau Klik)</label>
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Foto Sampul / Banner (Drag & Drop atau Klik)</label>
+            
+            <div 
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
+              className={`relative w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition ${
+                dragActive 
+                  ? 'border-[#F35A05] bg-orange-50/10' 
+                  : 'border-slate-300 hover:border-[#F35A05] bg-slate-50/50 hover:bg-orange-50/5'
+              }`}
+            >
+              <input 
+                type="file"
+                id="image-drop-input"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploadingImage}
+                className="hidden"
+              />
               
-              <div 
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                className={`relative w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition ${
-                  dragActive 
-                    ? 'border-[#F35A05] bg-orange-50/10' 
-                    : 'border-slate-300 hover:border-[#F35A05] bg-slate-50/50 hover:bg-orange-50/5'
-                }`}
-              >
-                <input 
-                  type="file"
-                  id="image-drop-input"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploadingImage}
-                  className="hidden"
-                />
-                
-                {destImageUrl ? (
-                  <div className="w-full flex flex-col items-center space-y-3">
-                    <div className="relative w-full max-w-md aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200/80">
-                      <img 
-                        src={destImageUrl} 
-                        alt="Preview upload" 
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <label 
-                        htmlFor="image-drop-input"
-                        className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400 rounded-lg text-[10px] font-black text-slate-600 transition active:scale-95 cursor-pointer select-none"
-                      >
-                        Ganti Gambar
-                      </label>
-                      <button 
-                        type="button"
-                        onClick={() => setDestImageUrl('')}
-                        className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 rounded-lg text-[10px] font-black transition active:scale-95 select-none"
-                      >
-                        Hapus Gambar
-                      </button>
-                    </div>
+              {destImageUrl ? (
+                <div className="w-full flex flex-col items-center space-y-3">
+                  <div className="relative w-full max-w-md aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200/80">
+                    <img 
+                      src={destImageUrl} 
+                      alt="Preview upload" 
+                      className="object-cover w-full h-full"
+                    />
                   </div>
-                ) : (
-                  <label htmlFor="image-drop-input" className="flex flex-col items-center justify-center space-y-2 cursor-pointer w-full text-center">
-                    <UploadCloud className={`w-8 h-8 ${uploadingImage ? 'text-[#F35A05] animate-pulse' : 'text-slate-400'}`} />
-                    <div className="space-y-1">
-                      <p className="text-xs font-bold text-slate-700">
-                        {uploadingImage ? 'Sedang mengunggah...' : 'Tarik & Letakkan gambar di sini, atau klik untuk memilih'}
-                      </p>
-                      <p className="text-[10px] text-slate-400">Mendukung format PNG, JPG, JPEG (Maks. 5MB). Gambar akan otomatis dikompresi.</p>
-                    </div>
-                  </label>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-400 pl-1">Gambar ini akan digunakan sebagai cover utama kartu informasi di aplikasi PWA Siulu'.</p>
+                  <div className="flex items-center space-x-3">
+                    <label 
+                      htmlFor="image-drop-input"
+                      className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400 rounded-lg text-[10px] font-black text-slate-600 transition active:scale-95 cursor-pointer select-none"
+                    >
+                      Ganti Gambar
+                    </label>
+                    <button 
+                      type="button"
+                      onClick={() => setDestImageUrl('')}
+                      className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 rounded-lg text-[10px] font-black transition active:scale-95 select-none"
+                    >
+                      Hapus Gambar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <label htmlFor="image-drop-input" className="flex flex-col items-center justify-center space-y-2 cursor-pointer w-full text-center">
+                  <UploadCloud className={`w-8 h-8 ${uploadingImage ? 'text-[#F35A05] animate-pulse' : 'text-slate-400'}`} />
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-slate-700">
+                      {uploadingImage ? 'Sedang mengunggah...' : 'Tarik & Letakkan gambar di sini, atau klik untuk memilih'}
+                    </p>
+                    <p className="text-[10px] text-slate-400">Mendukung format PNG, JPG, JPEG (Maks. 5MB). Gambar akan otomatis dikompresi.</p>
+                  </div>
+                </label>
+              )}
             </div>
-          )}
+            <p className="text-[10px] text-slate-400 pl-1">Gambar ini akan digunakan sebagai cover utama kartu informasi di aplikasi PWA Siulu'.</p>
+          </div>
 
           {entityType === 'destinasi' && (
             <>
