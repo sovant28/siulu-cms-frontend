@@ -161,7 +161,6 @@ export default function EditKnowledgeBase({ params }) {
   // Kuliner Tradisional Specific
   const [culinaryRecipe, setCulinaryRecipe] = useState('');
   const [culinarySteps, setCulinarySteps] = useState('');
-  const [culinaryVenues, setCulinaryVenues] = useState('');
 
   // Event Specific
   const [eventStartDate, setEventStartDate] = useState('');
@@ -244,7 +243,6 @@ export default function EditKnowledgeBase({ params }) {
                 setRestoPriceRange(biayaInfo.range_harga || '');
                 setCulinaryRecipe(biayaInfo.resep || '');
                 setCulinarySteps(biayaInfo.cara_pembuatan || '');
-                setCulinaryVenues(biayaInfo.tempat_memperoleh || '');
               } else if (dest.kategori === 'event') {
                 setEntityType('event');
                 setEventTicket(biayaInfo.harga_tiket || '');
@@ -381,8 +379,7 @@ export default function EditKnowledgeBase({ params }) {
         "range_harga": restoPriceRange,
         ...(isFood && {
           "resep": culinaryRecipe,
-          "cara_pembuatan": culinarySteps,
-          "tempat_memperoleh": culinaryVenues
+          "cara_pembuatan": culinarySteps
         })
       };
     } else if (entityType === 'event') {
@@ -442,6 +439,8 @@ export default function EditKnowledgeBase({ params }) {
   };
 
   if (loading) return null;
+
+  const isFood = entityType === 'restoran' && destId.startsWith('FOOD-');
 
   return (
     <div className="flex flex-col w-full font-sans pb-10 space-y-6">
@@ -560,35 +559,35 @@ export default function EditKnowledgeBase({ params }) {
           {/* Form Restoran / Kuliner */}
           {entityType === 'restoran' && (
             <div className="space-y-6">
-              {destId.trim().startsWith('FOOD-') ? (
-                <div className="space-y-6 p-4 bg-orange-50/30 rounded-xl border border-orange-100/80">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan Hidangan</label>
-                      <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs">
-                        <option value="Halal Certified">Tersertifikasi Halal</option>
-                        <option value="Halal Friendly">Halal Friendly (Bebas Babi/Minyak Babi)</option>
-                        <option value="Non-Halal">Hidangan Non-Halal (Mengandung Babi/Lainnya)</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kisaran Harga Hidangan</label>
-                      <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Contoh: Rp 35.000 - Rp 50.000 / porsi" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
-                    </div>
+              {isFood ? (
+                <div className="space-y-6 p-6 bg-orange-50/20 rounded-xl border border-orange-100/70">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Status Kehalalan Hidangan</label>
+                    <select value={restoHalal} onChange={(e) => setRestoHalal(e.target.value)} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition">
+                      <option value="Halal Certified">Tersertifikasi Halal</option>
+                      <option value="Halal Friendly">Halal Friendly (Bebas Babi/Minyak Babi)</option>
+                      <option value="Non-Halal">Hidangan Non-Halal (Mengandung Babi/Lainnya)</option>
+                    </select>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Bahan Utama & Resep</label>
-                      <textarea rows={3} value={culinaryRecipe} onChange={(e) => setCulinaryRecipe(e.target.value)} placeholder="Contoh: Daging ayam/babi, jahe, bawang merah, bawang putih, daun serai, kelapa parut, batang pisang muda (A'ri)..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] resize-y min-h-[80px]" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Cara Pembuatan (Singkat)</label>
-                      <textarea rows={3} value={culinarySteps} onChange={(e) => setCulinarySteps(e.target.value)} placeholder="Contoh: Langkah 1: Potong daging kecil-kecil. Langkah 2: Campurkan dengan bumbu kuning. Langkah 3: Masukkan ke bambu dan bakar..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] resize-y min-h-[80px]" />
-                    </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Kisaran Harga Hidangan</label>
+                    <input type="text" value={restoPriceRange} onChange={(e) => setRestoPriceRange(e.target.value)} placeholder="Contoh: Rp 35.000 - Rp 50.000 / porsi" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
                   </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Bahan Utama & Resep</label>
+                    <textarea rows={4} value={culinaryRecipe} onChange={(e) => setCulinaryRecipe(e.target.value)} placeholder="Contoh: Daging ayam/babi, jahe, bawang merah, bawang putih, daun serai, kelapa parut, batang pisang muda (A'ri)..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y min-h-[100px]" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Cara Pembuatan (Singkat)</label>
+                    <textarea rows={4} value={culinarySteps} onChange={(e) => setCulinarySteps(e.target.value)} placeholder="Contoh: Langkah 1: Potong daging kecil-kecil. Langkah 2: Campurkan dengan bumbu kuning. Langkah 3: Masukkan ke bambu dan bakar..." className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y min-h-[100px]" />
+                  </div>
+
                   <div className="space-y-2">
                     <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Tempat Memperoleh / Penjual (ID Restoran, Pisahkan Koma)</label>
-                    <input type="text" value={culinaryVenues} onChange={(e) => setCulinaryVenues(e.target.value)} placeholder="Contoh: CUL-001, CUL-002 (Ketikkan ID kedai/warung yang terdaftar)" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                    <input type="text" value={destFacilities} onChange={(e) => setDestFacilities(e.target.value)} placeholder="Contoh: CUL-001, CUL-002 (Ketikkan ID kedai/warung yang terdaftar)" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
                   </div>
                 </div>
               ) : (
@@ -655,23 +654,32 @@ export default function EditKnowledgeBase({ params }) {
           </div>
 
           {entityType !== 'darurat' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">
-                  {entityType === 'restoran' ? 'ID Kedai/Restoran Penyedia (Pisahkan Koma)' : 'Fasilitas Tambahan (Pisahkan Koma)'}
-                </label>
-                <input 
-                  type="text" 
-                  value={destFacilities} 
-                  onChange={(e) => setDestFacilities(e.target.value)} 
-                  placeholder={entityType === 'restoran' ? 'Contoh: TOR-ARAS-CAF, TOR-LEMO-CAF' : 'Parkir, Wifi, Toilet Umum, Pemandu Lokal'} 
-                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" 
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
-                <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="Contoh: -2.9734, 119.8972" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
-              </div>
+            <div>
+              {isFood ? (
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
+                  <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="Contoh: -2.9734, 119.8972" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">
+                      {entityType === 'restoran' ? 'ID Kedai/Restoran Penyedia (Pisahkan Koma)' : 'Fasilitas Tambahan (Pisahkan Koma)'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={destFacilities} 
+                      onChange={(e) => setDestFacilities(e.target.value)} 
+                      placeholder={entityType === 'restoran' ? 'Contoh: CUL-001, CUL-002' : 'Parkir, Wifi, Toilet Umum, Pemandu Lokal'} 
+                      className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
+                    <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="Contoh: -2.9734, 119.8972" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
