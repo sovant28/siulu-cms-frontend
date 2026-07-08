@@ -203,32 +203,50 @@ export default function EditKnowledgeBase({ params }) {
         }
         
         // Fetch existing data
-        if (unwrappedParams.id && currentToken) {
-          const res = await fetch(`${API_URL}/knowledge/destinasi`, {
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const dest = data.find(d => d.id === unwrappedParams.id);
-            if (dest) {
-              setDestId(dest.id);
-              setDestName(dest.nama_tempat);
-              setDestRegion(dest.lokasi_wilayah);
-              setDestDescription(dest.deskripsi_lengkap);
-              setDestContact(dest.kontak_info || '');
-              
-              if (dest.koordinat_gps && Array.isArray(dest.koordinat_gps)) {
-                setDestGps(`${dest.koordinat_gps[0]}, ${dest.koordinat_gps[1]}`);
-              }
-              if (dest.fitur_fasilitas && Array.isArray(dest.fitur_fasilitas)) {
-                setDestFacilities(dest.fitur_fasilitas.join(', '));
-              }
+        if (unwrappedParams.id) {
+          const { data: dest, error } = await supabase
+            .from('destinasi_wisata')
+            .select('*')
+            .eq('id', unwrappedParams.id)
+            .single();
 
-              const biayaInfo = typeof dest.informasi_biaya === 'object' ? dest.informasi_biaya : {};
-              setOriginalBiaya(biayaInfo);
-              const jamOp = dest.jam_operasional || '';
-              
-              setDestImageUrl(biayaInfo.image_url || '');
+          if (error) throw error;
+
+          if (dest) {
+            // Format koordinat_gps jika dikembalikan sebagai string oleh PostGIS
+            let gps = dest.koordinat_gps;
+            if (typeof gps === 'string' && gps.startsWith("POINT")) {
+              try {
+                const parts = gps.replace("POINT(", "").replace(")", "").split(" ");
+                gps = [parseFloat(parts[1]), parseFloat(parts[0])];
+              } catch (e) {}
+            }
+            
+            let biayaInfo = dest.informasi_biaya;
+            if (biayaInfo && typeof biayaInfo === 'string') {
+              try {
+                biayaInfo = JSON.parse(biayaInfo);
+              } catch (e) {}
+            }
+
+            setDestId(dest.id);
+            setDestName(dest.nama_tempat);
+            setDestRegion(dest.lokasi_wilayah);
+            setDestDescription(dest.deskripsi_lengkap);
+            setDestContact(dest.kontak_info || '');
+            
+            if (gps && Array.isArray(gps)) {
+              setDestGps(`${gps[0]}, ${gps[1]}`);
+            }
+            if (dest.fitur_fasilitas && Array.isArray(dest.fitur_fasilitas)) {
+              setDestFacilities(dest.fitur_fasilitas.join(', '));
+            }
+
+            const parsedBiaya = typeof biayaInfo === 'object' ? biayaInfo : {};
+            setOriginalBiaya(parsedBiaya);
+            const jamOp = dest.jam_operasional || '';
+            
+            setDestImageUrl(parsedBiaya.image_url || '');
 
               // Auto-detect entity type based on kategori
               if (dest.kategori === 'akomodasi') {
@@ -297,7 +315,6 @@ export default function EditKnowledgeBase({ params }) {
               router.push('/dashboard/knowledge');
             }
           }
-        }
       } catch (err) {
         console.error(err);
       } finally {
