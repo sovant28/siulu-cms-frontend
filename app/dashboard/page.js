@@ -365,7 +365,7 @@ export default function DashboardHome() {
           <div className="bg-white rounded-2xl p-6 border border-slate-200/80 space-y-5">
             <h3 className="text-sm font-bold text-slate-800">Akses Cepat</h3>
             <div className="space-y-3">
-              <Link href="/dashboard/knowledge/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
+              <Link href="/dashboard/knowledge/add?type=destinasi" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
                 <div className="w-10 h-10 rounded-lg bg-orange-50 text-[#F35A05] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Database className="w-5 h-5" />
                 </div>
@@ -374,13 +374,13 @@ export default function DashboardHome() {
                   <div className="text-[10px] text-slate-500 font-medium">Inject artikel RAG baru</div>
                 </div>
               </Link>
-              <Link href="/dashboard/faq/add" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
+              <Link href="/dashboard/faq" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">
                 <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
                   <div className="text-xs font-bold text-slate-800 group-hover:text-[#F35A05] transition">Buat Sapaan Cepat</div>
-                  <div className="text-[10px] text-slate-500 font-medium">Setup regex fallback statis</div>
+                  <div className="text-[10px] text-slate-500 font-medium">Kelola pola regex sapaan & FAQ</div>
                 </div>
               </Link>
               <Link href="/dashboard/sandbox" className="flex items-center space-x-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-[#F35A05] transition group">

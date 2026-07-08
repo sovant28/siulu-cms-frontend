@@ -169,7 +169,7 @@ export default function FaqList() {
       <div className="flex h-[60vh] w-full items-center justify-center">
         <div className="flex flex-col items-center space-y-3">
           <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-[#F35A05] border-t-transparent"></div>
-          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest pl-1">Memuat Data FAQ...</p>
+          <p className="text-[9px] font-bold text-slate-500 tracking-widest pl-1">Memuat Data FAQ...</p>
         </div>
       </div>
     );
@@ -363,7 +363,7 @@ export default function FaqList() {
       {/* EDIT GREETING MODAL */}
       {editingGreeting && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl max-w-md w-full border border-slate-100 flex flex-col space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 flex flex-col space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-lg font-black text-slate-800 tracking-tight">Edit Sapaan Cepat</h3>
               <button 
@@ -376,7 +376,7 @@ export default function FaqList() {
             
             <form onSubmit={handleUpdateGreeting} className="space-y-4">
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pola Pesan User (Regex)</label>
+                <label className="text-[10px] font-black text-slate-500 tracking-wider">Pola Pesan User (Regex)</label>
                 <input 
                   type="text"
                   value={editPattern}
@@ -388,7 +388,7 @@ export default function FaqList() {
               </div>
               
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Balasan Statis Bot</label>
+                <label className="text-[10px] font-black text-slate-500 tracking-wider">Balasan Statis Bot</label>
                 <textarea 
                   rows={4}
                   value={editReply}

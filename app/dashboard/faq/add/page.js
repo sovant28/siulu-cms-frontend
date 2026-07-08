@@ -94,7 +94,7 @@ export default function AddGreeting() {
         </div>
       </div>
 
-      <div className="max-w-2xl bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
+      <div className="max-w-2xl bg-white border border-slate-200 rounded-xl p-8">
         <form onSubmit={handleSaveGreeting} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-700">Pola Sapaan (Regex) *</label>
