@@ -27,11 +27,9 @@ export default function EditKnowledgeBase({ params }) {
   const [originalBiaya, setOriginalBiaya] = useState({});
   const [formLoading, setFormLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+  const processAndUploadImage = async (file) => {
     setUploadingImage(true);
     try {
       // Compress the image before uploading
@@ -61,6 +59,37 @@ export default function EditKnowledgeBase({ params }) {
       alert("Terjadi kesalahan sistem saat mengunggah gambar.");
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    await processAndUploadImage(file);
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        await processAndUploadImage(file);
+      } else {
+        alert("Mohon unggah file gambar saja.");
+      }
     }
   };
 
@@ -415,15 +444,15 @@ export default function EditKnowledgeBase({ params }) {
               <input type="text" required disabled value={destId} className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-500 font-bold focus:outline-none cursor-not-allowed" />
             </div>
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Nama {entityType === 'hotel' ? 'Hotel / Akomodasi' : entityType === 'restoran' ? 'Restoran' : entityType === 'event' ? 'Event' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
-              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Misiliana Hotel' : entityType === 'restoran' ? 'Cafe Aras' : 'event' ? 'Toraja Highland Festival' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Makam Londa'}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Nama {entityType === 'hotel' ? 'Hotel / Akomodasi' : entityType === 'restoran' ? 'Restoran / Rumah Makan' : entityType === 'event' ? 'Event / Acara' : entityType === 'darurat' ? 'Info / Kontak Darurat' : 'Tempat Wisata'} *</label>
+              <input type="text" required value={destName} onChange={(e) => setDestName(e.target.value)} placeholder={`Contoh: ${entityType === 'hotel' ? 'Toraja Heritage Hotel' : entityType === 'restoran' ? 'Cafe Aras' : entityType === 'event' ? 'Festival Rambu Solo\' Sangalla' : entityType === 'darurat' ? 'Polres Tana Toraja' : 'Situs Makam Tebing Londa / Kete Kesu\''}`} className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Wilayah / Lokasi *</label>
-              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Rantepao, Toraja Utara" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
+              <input type="text" required value={destRegion} onChange={(e) => setDestRegion(e.target.value)} placeholder="Contoh: Kesu\', Toraja Utara / Makale, Tana Toraja" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-[#F35A05] transition" />
             </div>
             {entityType === 'destinasi' && (
               <div className="space-y-2">
@@ -456,14 +485,14 @@ export default function EditKnowledgeBase({ params }) {
           
           {/* Form Destinasi */}
           {entityType === 'destinasi' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl border border-slate-200/80">
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Jam Operasional</label>
-                <input type="text" value={destHours} onChange={(e) => setDestHours(e.target.value)} placeholder="Setiap hari 08:00 - 17:00" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                <input type="text" value={destHours} onChange={(e) => setDestHours(e.target.value)} placeholder="Contoh: Setiap Hari, 08:00 - 18:00 WITA" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Informasi Biaya / Tiket Masuk</label>
-                <input type="text" value={destTicketPrice} onChange={(e) => setDestTicketPrice(e.target.value)} placeholder="Rp 15.000 / orang" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
+                <input type="text" value={destTicketPrice} onChange={(e) => setDestTicketPrice(e.target.value)} placeholder="Contoh: Rp 15.000 (Domestik), Rp 30.000 (Mancanegara)" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2 text-xs" />
               </div>
             </div>
           )}
@@ -554,7 +583,7 @@ export default function EditKnowledgeBase({ params }) {
             <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Deskripsi Lengkap (Materi Utama AI) *</label>
             <textarea 
               required rows={6} value={destDescription} onChange={(e) => setDestDescription(e.target.value)}
-              placeholder="Jelaskan secara detail mengenai profil entitas ini agar bot AI dapat memahaminya dan menjawab pertanyaan pengunjung dengan akurat..."
+              placeholder="Tuliskan penjelasan lengkap destinasi: sejarah asal-usul, nilai adat/kebudayaan, keunikan arsitektur Tongkonan, rute jalan, dan informasi penting lainnya agar AI dapat menjelaskan secara detail dan akurat..."
               className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] transition resize-y min-h-[120px]"
             />
           </div>
@@ -569,36 +598,79 @@ export default function EditKnowledgeBase({ params }) {
                   type="text" 
                   value={destFacilities} 
                   onChange={(e) => setDestFacilities(e.target.value)} 
-                  placeholder={entityType === 'restoran' ? 'Contoh: TOR-ARAS-CAF, TOR-LEMO-CAF' : 'Parkir, Wifi, Kolam Renang'} 
+                  placeholder={entityType === 'restoran' ? 'Contoh: TOR-ARAS-CAF, TOR-LEMO-CAF' : 'Parkir, Wifi, Toilet Umum, Pemandu Lokal'} 
                   className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" 
                 />
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Koordinat GPS [Lat, Lng]</label>
-                <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="-3.1234, 119.8765" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
+                <input type="text" value={destGps} onChange={(e) => setDestGps(e.target.value)} placeholder="Contoh: -2.9734, 119.8972" className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05]" />
               </div>
             </div>
           )}
 
           {entityType !== 'darurat' && (
             <div className="space-y-2">
-              <label className="flex text-[10px] font-black text-slate-500 tracking-wider pl-1 items-center justify-between">
-                <span>URL Gambar / Banner (Opsional)</span>
-                <label className="cursor-pointer text-[#F35A05] hover:text-[#d94200] flex items-center space-x-1 transition">
-                  <UploadCloud className="w-3.5 h-3.5" />
-                  <span>Upload File</span>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleImageUpload}
-                    disabled={uploadingImage}
-                  />
-                </label>
-              </label>
-              <input type="text" value={destImageUrl} onChange={(e) => setDestImageUrl(e.target.value)} placeholder="https://example.com/banner.jpg" className={`w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#F35A05] transition ${uploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={uploadingImage} />
-              {uploadingImage && <p className="text-[10px] text-[#F35A05] font-bold pl-1 animate-pulse">Mengunggah gambar...</p>}
-              <p className="text-[10px] text-slate-400 pl-1">URL gambar ini akan digunakan sebagai cover di aplikasi Siulu App.</p>
+              <label className="block text-[10px] font-black text-slate-500 tracking-wider pl-1">Foto Sampul / Banner Destinasi (Drag & Drop atau Klik)</label>
+              
+              <div 
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                className={`relative w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center transition ${
+                  dragActive 
+                    ? 'border-[#F35A05] bg-orange-50/10' 
+                    : 'border-slate-300 hover:border-[#F35A05] bg-slate-50/50 hover:bg-orange-50/5'
+                }`}
+              >
+                <input 
+                  type="file"
+                  id="image-drop-input"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+                
+                {destImageUrl ? (
+                  <div className="w-full flex flex-col items-center space-y-3">
+                    <div className="relative w-full max-w-md aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200/80">
+                      <img 
+                        src={destImageUrl} 
+                        alt="Preview upload" 
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <label 
+                        htmlFor="image-drop-input"
+                        className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400 rounded-lg text-[10px] font-black text-slate-600 transition active:scale-95 cursor-pointer select-none"
+                      >
+                        Ganti Gambar
+                      </label>
+                      <button 
+                        type="button"
+                        onClick={() => setDestImageUrl('')}
+                        className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 rounded-lg text-[10px] font-black transition active:scale-95 select-none"
+                      >
+                        Hapus Gambar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label htmlFor="image-drop-input" className="flex flex-col items-center justify-center space-y-2 cursor-pointer w-full text-center">
+                    <UploadCloud className={`w-8 h-8 ${uploadingImage ? 'text-[#F35A05] animate-pulse' : 'text-slate-400'}`} />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-700">
+                        {uploadingImage ? 'Sedang mengunggah...' : 'Tarik & Letakkan gambar di sini, atau klik untuk memilih'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">Mendukung format PNG, JPG, JPEG (Maks. 5MB). Gambar akan otomatis dikompresi.</p>
+                    </div>
+                  </label>
+                )}
+              </div>
+              <p className="text-[10px] text-slate-400 pl-1">Gambar ini akan digunakan sebagai cover utama kartu informasi di aplikasi PWA Siulu'.</p>
             </div>
           )}
 
